@@ -1,4 +1,3 @@
-// frontend/src/components/Navbar.jsx
 import { Link } from "react-router-dom";
 import { useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
@@ -9,7 +8,7 @@ function Navbar() {
   return (
     <nav style={styles.navContainer}>
       <div style={styles.navInner}>
-        {/* 1. Logo now acts as a link to the home page */}
+        {/* Logo acts as a link to home */}
         <Link to="/" style={{ textDecoration: "none" }}>
           <div style={styles.logoGroup}>
             <h2 style={styles.logo}>MockHire AI</h2>
@@ -17,9 +16,7 @@ function Navbar() {
         </Link>
 
         <div style={styles.links}>
-          {/* 2. Explicit Home link added */}
           <Link style={styles.link} to="/">Home</Link>
-          
           <div style={styles.linkWithIcon}>Features</div>
           <div style={styles.linkWithIcon}>Resources</div>
           <Link style={styles.link} to="/about">About</Link>
@@ -27,12 +24,12 @@ function Navbar() {
           {token ? (
             <>
               <Link style={styles.link} to="/interview">Interview</Link>
-              <button onClick={logout} style={styles.primaryBtn}>Logout</button>
+              <button onClick={logout} style={styles.logoutBtn}>Logout</button>
             </>
           ) : (
             <>
-              <Link style={styles.link} to="/register">Register</Link>
-              <Link to="/login">
+              {/* Register link removed from here as requested */}
+              <Link to="/login" style={{ textDecoration: "none" }}>
                 <button style={styles.primaryBtn}>Get Started</button>
               </Link>
             </>
@@ -49,12 +46,10 @@ const styles = {
     display: "flex",
     justifyContent: "center",
     padding: "20px 0",
-    position: "sticky", 
+    position: "fixed", // Changed to fixed to float over the video background
     top: 0,
+    left: 0,
     zIndex: 1000,
-    backdropFilter: "blur(10px)",
-    WebkitBackdropFilter: "blur(10px)",
-    backgroundColor: "rgba(255, 255, 255, 0.3)", 
   },
   navInner: {
     width: "90%",
@@ -63,10 +58,13 @@ const styles = {
     justifyContent: "space-between",
     alignItems: "center",
     padding: "12px 40px",
-    background: "rgba(255, 255, 255, 0.8)", 
+    // Dark Mode Glassmorphism:
+    background: "rgba(255, 255, 255, 0.05)", 
+    backdropFilter: "blur(15px)",
+    WebkitBackdropFilter: "blur(15px)",
     borderRadius: "50px",
-    boxShadow: "0 4px 20px rgba(0, 0, 0, 0.05)",
-    border: "1px solid rgba(255, 255, 255, 0.3)",
+    border: "1px solid rgba(255, 255, 255, 0.1)",
+    boxShadow: "0 10px 30px rgba(0, 0, 0, 0.3)",
   },
   logoGroup: {
     display: "flex",
@@ -76,7 +74,7 @@ const styles = {
   logo: {
     fontSize: "18px",
     fontWeight: "800",
-    color: "#111827",
+    color: "#ffffff", // Changed to white for Dark Mode
     letterSpacing: "-0.5px",
     margin: 0,
   },
@@ -86,29 +84,40 @@ const styles = {
     alignItems: "center",
   },
   link: {
-    color: "#374151",
+    color: "#94a3b8", // Muted slate color
     textDecoration: "none",
     fontWeight: "500",
     fontSize: "14px",
     transition: "color 0.2s",
   },
   linkWithIcon: {
-    color: "#374151",
+    color: "#94a3b8",
     fontWeight: "500",
     fontSize: "14px",
     cursor: "pointer",
   },
   primaryBtn: {
-    background: "#111827",
-    color: "#fff",
+    background: "#ffffff", // White button for high contrast in dark mode
+    color: "#020617",
     border: "none",
     padding: "10px 24px",
     borderRadius: "25px",
     cursor: "pointer",
     fontSize: "14px",
-    fontWeight: "600",
-    transition: "background 0.2s",
+    fontWeight: "700",
+    transition: "transform 0.2s",
+    boxShadow: "0 4px 15px rgba(255, 255, 255, 0.1)",
   },
+  logoutBtn: {
+    background: "rgba(239, 68, 68, 0.1)",
+    color: "#ef4444",
+    border: "1px solid rgba(239, 68, 68, 0.2)",
+    padding: "10px 24px",
+    borderRadius: "25px",
+    cursor: "pointer",
+    fontSize: "14px",
+    fontWeight: "600",
+  }
 };
 
 export default Navbar;

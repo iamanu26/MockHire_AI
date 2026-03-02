@@ -3,9 +3,8 @@ import { Link } from "react-router-dom";
 export default function Home() {
   return (
     <div style={styles.wrapper}>
-      {/* This main container now handles the vertical and horizontal centering */}
       <main style={styles.heroSection}>
-        {/* Left Column: Your Original Text Content */}
+        {/* Left Column */}
         <div style={styles.contentSide}>
           <p style={styles.topBadge}>AI INTERVIEW ASSISTANT</p>
 
@@ -25,39 +24,28 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Right Column: Your Local Illustration */}
+        {/* Right Column */}
         <div style={styles.imageSide} >
           <img
-            src="/mockhire-ai.png" // Pointing to your local file
+            src="/mockhire-ai.png" 
             alt="MockHire AI Illustration"
             style={styles.heroImage}
           />
         </div>
       </main>
-
-      {/* Social Proof Footer */}
-      <section style={styles.brandsSection}>
-        <p style={styles.brandsText}>Users landed roles at</p>
-        <div style={styles.brandLogos}>
-          <span style={styles.logoText}>Meta</span>
-          <span style={styles.logoText}>Apple</span>
-          <span style={styles.logoText}>Google</span>
-          <span style={styles.logoText}>Amazon</span>
-          <span style={styles.logoText}>Nike</span>
-        </div>
-      </section>
     </div>
   );
 }
 
 const styles = {
   wrapper: {
-    backgroundColor: "#fff",
-    minHeight: "100vh", // Full screen height
+    // DARK MODE: Deep Navy/Black Background
+    backgroundColor: "#020617", 
+    minHeight: "100vh",
     display: "flex",
     flexDirection: "column",
-    justifyContent: "center", // Centers content vertically
-    alignItems: "center",     // Centers content horizontally
+    justifyContent: "center",
+    alignItems: "center",
     overflowX: "hidden",
   },
   heroSection: {
@@ -68,14 +56,15 @@ const styles = {
     width: "100%",
     padding: "0 40px",
     gap: "60px",
-    flex: 1, // Allows the hero to take up the central space
+    flex: 1,
   },
   contentSide: {
     flex: 1,
     textAlign: "left",
   },
   topBadge: {
-    color: "#2563eb",
+    // Electric Blue for visibility in dark mode
+    color: "#3b82f6", 
     fontWeight: "800",
     fontSize: "14px",
     letterSpacing: "1.5px",
@@ -85,14 +74,16 @@ const styles = {
     fontSize: "72px",
     fontWeight: "900",
     lineHeight: "1.1",
-    color: "#0f172a",
+    // DARK MODE: Pure White/Silver
+    color: "#f8fafc", 
     margin: "0 0 25px 0",
     letterSpacing: "-2px",
   },
   subtitle: {
     fontSize: "19px",
     lineHeight: "1.6",
-    color: "#475569",
+    // DARK MODE: Muted Slate
+    color: "#94a3b8", 
     marginBottom: "40px",
     maxWidth: "500px",
   },
@@ -100,12 +91,14 @@ const styles = {
     padding: "16px 36px",
     fontSize: "15px",
     fontWeight: "700",
-    background: "#000",
-    color: "#fff",
+    // DARK MODE: White button with dark text for high contrast
+    background: "#fff",
+    color: "#000",
     border: "none",
     borderRadius: "30px",
     cursor: "pointer",
     transition: "transform 0.2s",
+    boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.5)",
   },
   imageSide: {
     flex: 1,
@@ -116,27 +109,7 @@ const styles = {
     width: "100%",
     maxWidth: "550px",
     height: "auto",
-  },
-  brandsSection: {
-    width: "100%",
-    textAlign: "center",
-    paddingBottom: "40px", // Keeps some space at the very bottom
-  },
-  brandsText: {
-    fontSize: "14px",
-    color: "#94a3b8",
-    marginBottom: "20px",
-  },
-  brandLogos: {
-    display: "flex",
-    justifyContent: "center",
-    gap: "40px",
-    opacity: 0.5,
-    filter: "grayscale(100%)",
-    fontWeight: "bold",
-    fontSize: "20px",
-  },
-  logoText: {
-    color: "#334155",
+    // Adds a subtle glow behind the image in dark mode
+    filter: "drop-shadow(0 0 20px rgba(59, 130, 246, 0.2))",
   }
 };
