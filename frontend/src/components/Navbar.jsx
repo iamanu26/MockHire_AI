@@ -8,7 +8,6 @@ function Navbar() {
   return (
     <nav style={styles.navContainer}>
       <div style={styles.navInner}>
-        {/* Logo acts as a link to home */}
         <Link to="/" style={{ textDecoration: "none" }}>
           <div style={styles.logoGroup}>
             <h2 style={styles.logo}>MockHire AI</h2>
@@ -17,10 +16,10 @@ function Navbar() {
 
         <div style={styles.links}>
           <Link style={styles.link} to="/">Home</Link>
-          <div style={styles.linkWithIcon}>Features</div>
+          <Link style={styles.link} to="/how_it_works">How it works</Link>
           <div style={styles.linkWithIcon}>Resources</div>
           <Link style={styles.link} to="/about">About</Link>
-          
+
           {token ? (
             <>
               <Link style={styles.link} to="/interview">Interview</Link>
@@ -28,7 +27,6 @@ function Navbar() {
             </>
           ) : (
             <>
-              {/* Register link removed from here as requested */}
               <Link to="/login" style={{ textDecoration: "none" }}>
                 <button style={styles.primaryBtn}>Get Started</button>
               </Link>
@@ -46,7 +44,7 @@ const styles = {
     display: "flex",
     justifyContent: "center",
     padding: "20px 0",
-    position: "fixed", // Changed to fixed to float over the video background
+    position: "fixed",
     top: 0,
     left: 0,
     zIndex: 1000,
@@ -58,8 +56,7 @@ const styles = {
     justifyContent: "space-between",
     alignItems: "center",
     padding: "12px 40px",
-    // Dark Mode Glassmorphism:
-    background: "rgba(255, 255, 255, 0.05)", 
+    background: "rgba(255, 255, 255, 0.05)",
     backdropFilter: "blur(15px)",
     WebkitBackdropFilter: "blur(15px)",
     borderRadius: "50px",
@@ -74,7 +71,7 @@ const styles = {
   logo: {
     fontSize: "18px",
     fontWeight: "800",
-    color: "#ffffff", // Changed to white for Dark Mode
+    color: "#ffffff",
     letterSpacing: "-0.5px",
     margin: 0,
   },
@@ -84,7 +81,7 @@ const styles = {
     alignItems: "center",
   },
   link: {
-    color: "#94a3b8", // Muted slate color
+    color: "#94a3b8",
     textDecoration: "none",
     fontWeight: "500",
     fontSize: "14px",
@@ -97,7 +94,7 @@ const styles = {
     cursor: "pointer",
   },
   primaryBtn: {
-    background: "#ffffff", // White button for high contrast in dark mode
+    background: "#ffffff",
     color: "#020617",
     border: "none",
     padding: "10px 24px",

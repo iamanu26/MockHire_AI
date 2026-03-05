@@ -12,6 +12,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Interview from "./pages/Interview";
 import Feedback from "./pages/Feedback";
+import How_it_works from "./pages/How_it_works";
 
 // IMPORTANT: Do NOT import './App.css' here
 
@@ -23,6 +24,7 @@ function App() {
         <Navbar />
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/how_it_works" element={<How_it_works />} />
           <Route path="/about" element={<About />} />
           <Route path="/services" element={<Services />} />
           <Route path="/contact" element={<Contact />} />
