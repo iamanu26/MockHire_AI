@@ -1,42 +1,134 @@
-/* frontend/src/index.css */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+/* ============================================
+   MockHire AI — Global Styles
+   Add this to your existing index.css
+   ============================================ */
 
-:root {
-  background-color: #020617 !important;
-  color: #ffffff;
-  color-scheme: dark;
-}
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@300;400;500&display=swap');
 
-* {
+*, *::before, *::after {
+  box-sizing: border-box;
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
 }
 
-body {
-  margin: 0;
-  background: #020617 !important;
-  font-family: 'Inter', sans-serif;
-  color: white;
+:root {
+  --ink: #05080f;
+  --acid: #c8f135;
+  --dim: #8a9ab0;
+  --line: rgba(255, 255, 255, 0.07);
+  --card: rgba(255, 255, 255, 0.03);
+}
+
+html, body {
+  background: var(--ink);
+  color: #e2e8f0;
+  font-family: 'DM Mono', monospace;
   overflow-x: hidden;
+  /* Prevents white flash on load */
+  -webkit-font-smoothing: antialiased;
 }
 
-#root {
-  background: transparent !important;
+/* ── SHARED ANIMATIONS ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes scanline {
+  0%   { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+@keyframes blinkDot {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+@keyframes orbFloat {
+  0%, 100% { transform: translateY(0px) translateX(0px); }
+  33%       { transform: translateY(-30px) translateX(20px); }
+  66%       { transform: translateY(20px) translateX(-15px); }
+}
+@keyframes glowPulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(200,241,53,0.3), 0 8px 32px rgba(0,0,0,0.4); }
+  50%       { box-shadow: 0 0 40px rgba(200,241,53,0.6), 0 8px 32px rgba(0,0,0,0.4); }
+}
+@keyframes pulse-ring {
+  0%   { transform: scale(0.95); opacity: 0.6; }
+  50%  { transform: scale(1.12); opacity: 0.2; }
+  100% { transform: scale(0.95); opacity: 0.6; }
+}
+@keyframes pulse-ring2 {
+  0%   { transform: scale(0.9); opacity: 0.4; }
+  50%  { transform: scale(1.22); opacity: 0.1; }
+  100% { transform: scale(0.9); opacity: 0.4; }
+}
+@keyframes wave {
+  0%, 100% { height: 6px; }
+  50%       { height: 28px; }
+}
+@keyframes ping {
+  0%   { transform: scale(0.8); opacity: 0.8; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+@keyframes barGrow {
+  from { width: 0; }
+  to   { width: var(--w); }
+}
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+@keyframes radarSpin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+@keyframes floatY {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-10px); }
 }
 
-/* Re-usable Dark Glass Class */
-.dark-glass {
-  background: rgba(15, 23, 42, 0.7) !important; /* Deep Slate */
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-  border-radius: 24px;
+/* ── SHARED BACKGROUND ELEMENTS ── */
+.global-grid-bg {
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size: 80px 80px;
+  pointer-events: none;
+  z-index: 0;
 }
 
-/* Title Gradient */
-.text-gradient {
-  background: linear-gradient(180deg, #ffffff 0%, #94a3b8 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+.global-scanline {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(transparent, rgba(200,241,53,0.05), transparent);
+  animation: scanline 8s linear infinite;
+  pointer-events: none;
+  z-index: 200;
+}
+
+.global-orb-1 {
+  position: fixed;
+  top: -10%; left: -10%;
+  width: 500px; height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(99,102,241,0.15) 0%, transparent 70%);
+  animation: orbFloat 12s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.global-orb-2 {
+  position: fixed;
+  bottom: -10%; right: -10%;
+  width: 600px; height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(34,211,238,0.1) 0%, transparent 70%);
+  animation: orbFloat 15s ease-in-out infinite reverse;
+  pointer-events: none;
+  z-index: 0;
 }

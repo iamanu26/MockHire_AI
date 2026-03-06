@@ -1,0 +1,319 @@
+/* Interview.css — MockHire AI */
+
+@keyframes pulse-ring {
+  0%   { transform: scale(0.95); opacity: 0.6; }
+  50%  { transform: scale(1.12); opacity: 0.2; }
+  100% { transform: scale(0.95); opacity: 0.6; }
+}
+@keyframes pulse-ring2 {
+  0%   { transform: scale(0.9);  opacity: 0.4; }
+  50%  { transform: scale(1.22); opacity: 0.1; }
+  100% { transform: scale(0.9);  opacity: 0.4; }
+}
+@keyframes wave {
+  0%, 100% { height: 6px; }
+  50%       { height: 28px; }
+}
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes orbFloat {
+  0%, 100% { transform: translateY(0px)   translateX(0px); }
+  33%       { transform: translateY(-30px) translateX(20px); }
+  66%       { transform: translateY(20px)  translateX(-15px); }
+}
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+/* ── PAGE ── */
+.iv-page {
+  min-height: 100vh;
+  background: #080b12;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 100px 20px 60px;
+  font-family: 'Syne', 'DM Mono', sans-serif;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Background */
+.iv-orb-1 {
+  position: fixed;
+  top: -10%; left: -10%;
+  width: 500px; height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(99,102,241,0.15) 0%, transparent 70%);
+  animation: orbFloat 12s ease-in-out infinite;
+  pointer-events: none;
+}
+.iv-orb-2 {
+  position: fixed;
+  bottom: -10%; right: -10%;
+  width: 600px; height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(34,211,238,0.1) 0%, transparent 70%);
+  animation: orbFloat 15s ease-in-out infinite reverse;
+  pointer-events: none;
+}
+.iv-grid {
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+}
+
+/* Header */
+.iv-header {
+  text-align: center;
+  margin-bottom: 40px;
+  animation: fadeSlideUp 0.6s ease both;
+}
+.iv-header-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.iv-badge-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #22d3ee;
+  box-shadow: 0 0 12px #22d3ee;
+}
+.iv-header-badge span {
+  font-family: 'DM Mono', monospace;
+  color: #22d3ee;
+  font-size: 12px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+}
+.iv-title {
+  font-size: clamp(32px, 5vw, 52px);
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -1px;
+  line-height: 1.1;
+  background: linear-gradient(135deg, #fff 30%, #a78bfa 70%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Toggle */
+.iv-toggle {
+  display: flex;
+  margin-bottom: 36px;
+  background: #0f1623;
+  border-radius: 12px;
+  padding: 4px;
+  border: 1px solid rgba(255,255,255,0.08);
+  animation: fadeSlideUp 0.6s 0.1s ease both;
+}
+.iv-toggle-btn {
+  padding: 10px 28px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  background: transparent;
+  color: #4b5563;
+  transition: all 0.25s ease;
+}
+.iv-toggle-btn--active {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: #fff;
+  box-shadow: 0 4px 20px rgba(99,102,241,0.4);
+}
+
+/* Question Card */
+.iv-question-card {
+  width: 100%;
+  max-width: 680px;
+  margin-bottom: 36px;
+  background: linear-gradient(135deg, rgba(15,22,35,0.9), rgba(20,28,48,0.9));
+  border: 1px solid rgba(99,102,241,0.25);
+  border-radius: 20px;
+  padding: 32px;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.04), 0 20px 60px rgba(0,0,0,0.5);
+  animation: fadeSlideUp 0.45s ease both;
+  position: relative;
+  overflow: hidden;
+}
+.iv-question-line {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #6366f1, #a78bfa, transparent);
+}
+.iv-question-inner {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+.iv-bot-avatar {
+  width: 42px; height: 42px;
+  border-radius: 12px;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  box-shadow: 0 4px 16px rgba(99,102,241,0.4);
+}
+.iv-question-label {
+  font-family: 'DM Mono', monospace;
+  color: #6366f1;
+  font-size: 10px;
+  letter-spacing: 3px;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+.iv-question-text {
+  color: #e2e8f0;
+  font-size: clamp(15px, 2.5vw, 18px);
+  line-height: 1.65;
+  font-weight: 400;
+}
+
+/* Answer card */
+.iv-answer-card {
+  width: 100%;
+  max-width: 680px;
+  margin-bottom: 28px;
+  background: rgba(34,211,238,0.05);
+  border: 1px solid rgba(34,211,238,0.15);
+  border-radius: 14px;
+  padding: 16px 24px;
+  animation: fadeSlideUp 0.3s ease both;
+}
+.iv-answer-label {
+  font-family: 'DM Mono', monospace;
+  color: #22d3ee;
+  font-size: 10px;
+  letter-spacing: 3px;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+.iv-answer-text { color: #94a3b8; font-size: 14px; line-height: 1.6; }
+
+/* Status */
+.iv-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 32px;
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+.iv-status-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Mic */
+.iv-mic-wrap {
+  position: relative;
+  margin-bottom: 36px;
+}
+.iv-pulse-ring {
+  position: absolute;
+  inset: -20px;
+  border-radius: 50%;
+  border: 2px solid rgba(34,211,238,0.4);
+  animation: pulse-ring 1.8s ease-in-out infinite;
+}
+.iv-pulse-ring2 {
+  position: absolute;
+  inset: -40px;
+  border-radius: 50%;
+  border: 1px solid rgba(34,211,238,0.2);
+  animation: pulse-ring2 1.8s 0.4s ease-in-out infinite;
+}
+.iv-mic-btn {
+  width: 96px; height: 96px;
+  border-radius: 50%;
+  border: none;
+  font-size: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  box-shadow: 0 0 30px rgba(99,102,241,0.4), 0 8px 32px rgba(0,0,0,0.4);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+.iv-mic-btn--listening {
+  background: linear-gradient(135deg, #06b6d4, #22d3ee);
+  box-shadow: 0 0 40px rgba(34,211,238,0.5), 0 8px 32px rgba(0,0,0,0.4);
+  transform: scale(1.05);
+}
+.iv-mic-btn:disabled { cursor: not-allowed; }
+
+/* Wave */
+.iv-wave {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 36px;
+  margin-bottom: 32px;
+}
+.iv-wave-bar {
+  width: 4px;
+  height: 6px;
+  border-radius: 4px;
+  transition: background 0.3s ease;
+}
+
+/* Controls */
+.iv-controls {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.iv-ctrl-btn {
+  padding: 10px 22px;
+  border-radius: 10px;
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+/* Ended banner */
+.iv-ended-banner {
+  margin-top: 32px;
+  padding: 20px 32px;
+  background: rgba(239,68,68,0.1);
+  border: 1px solid rgba(239,68,68,0.3);
+  border-radius: 14px;
+  text-align: center;
+  animation: fadeSlideUp 0.4s ease both;
+}
+.iv-ended-banner p {
+  color: #fca5a5;
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  letter-spacing: 2px;
+}
