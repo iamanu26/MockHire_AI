@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import './Interview.css';
 
 export default function Interview() {
@@ -11,6 +12,13 @@ export default function Interview() {
   const [waveActive, setWaveActive] = useState(false);
   const [questionKey, setQuestionKey] = useState(0);
   const recognitionRef = useRef(null);
+  const navigate = useNavigate();
+
+  // ✅ Clear backend history every time a new session starts
+  useEffect(() => {
+    fetch("http://127.0.0.1:8000/interview/start", { method: "POST" })
+      .catch(() => console.warn("Could not reset interview session"));
+  }, []);
 
   if (!recognitionRef.current) {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -40,13 +48,58 @@ export default function Interview() {
   };
 
   const speak = (text) => {
+    // Best voice available in browser — picks the deepest male voice automatically
     speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = "en-US";
-    utterance.rate = 0.95;
-    utterance.onstart = () => setStatus("Speaking...");
-    utterance.onend = () => setStatus("Your turn");
-    speechSynthesis.speak(utterance);
+    setStatus("Speaking...");
+
+    const trySpeak = () => {
+      const voices = speechSynthesis.getVoices();
+
+      // Priority list: pick the most natural male voice available
+      const preferred = [
+        "Microsoft David Desktop",   // Windows — deep, clear
+        "Microsoft Mark",            // Windows — professional
+        "Google UK English Male",    // Chrome — natural British
+        "Google US English",         // Chrome — clear American
+        "en-GB",                     // fallback British
+        "en-US",                     // fallback American
+      ];
+
+      let chosen = null;
+      for (const name of preferred) {
+        chosen = voices.find(v =>
+          v.name.includes(name) || v.lang === name
+        );
+        if (chosen) break;
+      }
+
+      // Last resort: any English male voice
+      if (!chosen) {
+        chosen = voices.find(v =>
+          v.lang.startsWith("en") && v.name.toLowerCase().includes("male")
+        );
+      }
+
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang    = "en-US";
+      utterance.rate    = 0.88;   // slower = more authoritative
+      utterance.pitch   = 0.80;   // lower = deeper, more professional
+      utterance.volume  = 1.0;
+      if (chosen) utterance.voice = chosen;
+
+      utterance.onstart = () => setStatus("Speaking...");
+      utterance.onend   = () => setStatus("Your turn");
+      utterance.onerror = () => setStatus("Your turn");
+
+      speechSynthesis.speak(utterance);
+    };
+
+    // Voices may not be loaded yet on first call
+    if (speechSynthesis.getVoices().length === 0) {
+      speechSynthesis.addEventListener("voiceschanged", trySpeak, { once: true });
+    } else {
+      trySpeak();
+    }
   };
 
   const askQuestion = async (userAnswer) => {
@@ -77,6 +130,9 @@ export default function Interview() {
     setQuestion("Welcome! Please introduce yourself.");
     setQuestionKey(k => k + 1);
     setLoading(false);
+    // ✅ Clear backend history on restart too
+    fetch("http://127.0.0.1:8000/interview/start", { method: "POST" })
+      .catch(() => console.warn("Could not reset interview session"));
   };
 
   const pauseInterview  = () => { speechSynthesis.pause();  setInterviewState("paused");  setStatus("Paused");      setWaveActive(false); };
@@ -85,13 +141,23 @@ export default function Interview() {
   const stopInterview = async () => {
     speechSynthesis.cancel();
     recognitionRef.current?.abort();
+    // Stop any playing XTTS audio
+    document.querySelectorAll("audio").forEach(a => { a.pause(); a.src = ""; });
     setInterviewState("ended");
-    setStatus("Interview Complete");
+    setStatus("Generating Report...");
     setWaveActive(false);
     try {
       const token = localStorage.getItem("token");
-      await fetch("http://127.0.0.1:8000/interview/stop", { method: "POST", headers: { Authorization: `Bearer ${token}` } });
-    } catch { console.error("Failed to stop interview"); }
+      await fetch("http://127.0.0.1:8000/interview/stop", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      // ✅ FIX 3: Navigate to feedback page after session ends
+      navigate("/feedback");
+    } catch {
+      console.error("Failed to stop interview");
+      setStatus("Interview Complete");
+    }
   };
 
   const statusColor = {

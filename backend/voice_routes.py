@@ -1,15 +1,8 @@
-from fastapi import APIRouter
-from interview_agent import InterviewAgent
-
-router = APIRouter()
-
-agent = InterviewAgent(
-    company="Product Based",
-    role="Software Engineer",
-    level="Intermediate"
-)
-
-@router.post("/interview/voice/tech")
-async def voice_tech_interview(text: str):
-    ai_text = agent.tech_interviewer(text)
-    return {"reply": ai_text}
+# voice_routes.py is no longer needed.
+# The /interview/voice/tech route has been moved into main.py
+# so that all routes share the same InterviewAgent instance.
+#
+# You can safely delete this file.
+# Also remove this line from main.py if it still exists:
+#   from voice_routes import router as voice_router
+#   app.include_router(voice_router)
