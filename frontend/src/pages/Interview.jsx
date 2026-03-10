@@ -14,7 +14,6 @@ export default function Interview() {
   const recognitionRef = useRef(null);
   const navigate = useNavigate();
 
-  // ✅ Clear backend history every time a new session starts
   useEffect(() => {
     fetch("http://127.0.0.1:8000/interview/start", { method: "POST" })
       .catch(() => console.warn("Could not reset interview session"));
@@ -48,53 +47,35 @@ export default function Interview() {
   };
 
   const speak = (text) => {
-    // Best voice available in browser — picks the deepest male voice automatically
     speechSynthesis.cancel();
     setStatus("Speaking...");
-
     const trySpeak = () => {
       const voices = speechSynthesis.getVoices();
-
-      // Priority list: pick the most natural male voice available
       const preferred = [
-        "Microsoft David Desktop",   // Windows — deep, clear
-        "Microsoft Mark",            // Windows — professional
-        "Google UK English Male",    // Chrome — natural British
-        "Google US English",         // Chrome — clear American
-        "en-GB",                     // fallback British
-        "en-US",                     // fallback American
+        "Microsoft David Desktop",
+        "Microsoft Mark",
+        "Google UK English Male",
+        "Google US English",
+        "en-GB",
+        "en-US",
       ];
-
       let chosen = null;
       for (const name of preferred) {
-        chosen = voices.find(v =>
-          v.name.includes(name) || v.lang === name
-        );
+        chosen = voices.find(v => v.name.includes(name) || v.lang === name);
         if (chosen) break;
       }
-
-      // Last resort: any English male voice
-      if (!chosen) {
-        chosen = voices.find(v =>
-          v.lang.startsWith("en") && v.name.toLowerCase().includes("male")
-        );
-      }
-
+      if (!chosen) chosen = voices.find(v => v.lang.startsWith("en") && v.name.toLowerCase().includes("male"));
       const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang    = "en-US";
-      utterance.rate    = 0.88;   // slower = more authoritative
-      utterance.pitch   = 0.80;   // lower = deeper, more professional
-      utterance.volume  = 1.0;
+      utterance.lang   = "en-US";
+      utterance.rate   = 0.88;
+      utterance.pitch  = 0.80;
+      utterance.volume = 1.0;
       if (chosen) utterance.voice = chosen;
-
       utterance.onstart = () => setStatus("Speaking...");
       utterance.onend   = () => setStatus("Your turn");
       utterance.onerror = () => setStatus("Your turn");
-
       speechSynthesis.speak(utterance);
     };
-
-    // Voices may not be loaded yet on first call
     if (speechSynthesis.getVoices().length === 0) {
       speechSynthesis.addEventListener("voiceschanged", trySpeak, { once: true });
     } else {
@@ -130,7 +111,6 @@ export default function Interview() {
     setQuestion("Welcome! Please introduce yourself.");
     setQuestionKey(k => k + 1);
     setLoading(false);
-    // ✅ Clear backend history on restart too
     fetch("http://127.0.0.1:8000/interview/start", { method: "POST" })
       .catch(() => console.warn("Could not reset interview session"));
   };
@@ -141,7 +121,6 @@ export default function Interview() {
   const stopInterview = async () => {
     speechSynthesis.cancel();
     recognitionRef.current?.abort();
-    // Stop any playing XTTS audio
     document.querySelectorAll("audio").forEach(a => { a.pause(); a.src = ""; });
     setInterviewState("ended");
     setStatus("Generating Report...");
@@ -152,7 +131,6 @@ export default function Interview() {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
       });
-      // ✅ FIX 3: Navigate to feedback page after session ends
       navigate("/feedback");
     } catch {
       console.error("Failed to stop interview");
@@ -175,8 +153,6 @@ export default function Interview() {
 
   return (
     <div className="iv-page">
-
-      {/* Background orbs */}
       <div className="iv-orb-1" />
       <div className="iv-orb-2" />
       <div className="iv-grid" />
@@ -191,17 +167,26 @@ export default function Interview() {
         <h1 className="iv-title">Voice Interview Room</h1>
       </div>
 
-      {/* Type Toggle */}
+      {/* ── 3-Tab Toggle ── */}
       <div className="iv-toggle">
-        {["tech", "hr"].map((t) => (
-          <button
-            key={t}
-            onClick={() => setType(t)}
-            className={`iv-toggle-btn ${type === t ? "iv-toggle-btn--active" : ""}`}
-          >
-            {t === "tech" ? "⚙️ Technical" : "🤝 HR"}
-          </button>
-        ))}
+        <button
+          onClick={() => setType("tech")}
+          className={`iv-toggle-btn ${type === "tech" ? "iv-toggle-btn--active" : ""}`}
+        >
+          ⚙️ Technical
+        </button>
+        <button
+          onClick={() => setType("hr")}
+          className={`iv-toggle-btn ${type === "hr" ? "iv-toggle-btn--active" : ""}`}
+        >
+          🤝 HR
+        </button>
+        <button
+          onClick={() => navigate("/dsa-practice")}
+          className="iv-toggle-btn iv-toggle-btn--dsa"
+        >
+          🧩 DSA Practice
+        </button>
       </div>
 
       {/* Question Card */}
@@ -274,10 +259,10 @@ export default function Interview() {
 
       {/* Controls */}
       <div className="iv-controls">
-        <ControlBtn onClick={pauseInterview}  disabled={interviewState !== "running"} icon="⏸" label="Pause"       color="#f97316" />
-        <ControlBtn onClick={resumeInterview} disabled={interviewState !== "paused"}  icon="▶" label="Resume"      color="#4ade80" />
-        <ControlBtn onClick={restartInterview} disabled={false}                       icon="🔄" label="Restart"     color="#22d3ee" />
-        <ControlBtn onClick={stopInterview}   disabled={interviewState === "ended"}   icon="⬛" label="End Session" color="#ef4444" />
+        <ControlBtn onClick={pauseInterview}   disabled={interviewState !== "running"} icon="⏸" label="Pause"       color="#f97316" />
+        <ControlBtn onClick={resumeInterview}  disabled={interviewState !== "paused"}  icon="▶" label="Resume"      color="#4ade80" />
+        <ControlBtn onClick={restartInterview} disabled={false}                        icon="🔄" label="Restart"     color="#22d3ee" />
+        <ControlBtn onClick={stopInterview}    disabled={interviewState === "ended"}   icon="⬛" label="End Session" color="#ef4444" />
       </div>
 
       {interviewState === "ended" && (

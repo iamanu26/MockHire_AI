@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
+import Dsapractice from './pages/Dsapractice';
 
 import Home from "./pages/Home";
 import About from "./pages/About";
@@ -20,17 +21,25 @@ function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
-        {/* Navbar is inside the router so it can use Link components */}
         <Navbar />
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/"             element={<Home />} />
           <Route path="/how_it_works" element={<How_it_works />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/services" element={<Services />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/feedback" element={<Feedback />} />
+          <Route path="/about"        element={<About />} />
+          <Route path="/services"     element={<Services />} />
+          <Route path="/contact"      element={<Contact />} />
+          <Route path="/login"        element={<Login />} />
+          <Route path="/register"     element={<Register />} />
+          <Route path="/feedback"     element={<Feedback />} />
+
+          <Route
+            path="/dsa-practice"
+            element={
+              <ProtectedRoute>
+                <Dsapractice />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/interview"
             element={

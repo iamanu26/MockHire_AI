@@ -132,10 +132,24 @@
   color: #4b5563;
   transition: all 0.25s ease;
 }
+.iv-toggle-btn--dsa {
+  color: #c8f135 !important;
+}
+.iv-toggle-btn--dsa:hover {
+  background: rgba(200,241,53,0.1) !important;
+  color: #c8f135 !important;
+}
 .iv-toggle-btn--active {
   background: linear-gradient(135deg, #6366f1, #8b5cf6);
   color: #fff;
   box-shadow: 0 4px 20px rgba(99,102,241,0.4);
+}
+.iv-toggle-btn--dsa {
+  color: #c8f135;
+}
+.iv-toggle-btn--dsa:hover {
+  background: rgba(200,241,53,0.1);
+  color: #c8f135;
 }
 
 /* Question Card */
@@ -316,4 +330,37 @@
   font-family: 'DM Mono', monospace;
   font-size: 13px;
   letter-spacing: 2px;
+}
+
+/* DSA tab special style */
+.iv-toggle-btn--dsa {
+  color: #c8f135 !important;
+  border: 1px solid rgba(200,241,53,0.2) !important;
+}
+.iv-toggle-btn--dsa:hover {
+  background: rgba(200,241,53,0.1) !important;
+}
+
+/* ── DSA Tab ── */
+.iv-toggle-btn--dsa {
+  border: 1px solid rgba(200,241,53,0.25) !important;
+  color: #c8f135 !important;
+  background: rgba(200,241,53,0.06) !important;
+  position: relative;
+}
+.iv-toggle-btn--dsa:hover {
+  background: rgba(200,241,53,0.14) !important;
+  box-shadow: 0 0 16px rgba(200,241,53,0.2);
+}
+.iv-toggle-btn--dsa::after {
+  content: "NEW";
+  position: absolute;
+  top: -8px; right: -4px;
+  font-size: 8px;
+  background: #c8f135;
+  color: #05080f;
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-weight: 900;
+  letter-spacing: 0.5px;
 }
