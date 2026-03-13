@@ -1,6 +1,8 @@
 import json
 import re
 from fastapi import FastAPI, Depends, HTTPException
+from fastapi.responses import StreamingResponse
+import io
 from schemas import RegisterRequest, LoginRequest
 from fastapi.middleware.cors import CORSMiddleware
 from interview_agent import InterviewAgent
@@ -8,6 +10,8 @@ from sqlalchemy.orm import Session
 from database import Base, engine
 from models import User, InterviewResult
 from auth import get_db, hash_password, verify_password, create_access_token, get_current_user
+from text_to_speech import text_to_speech
+from dsa_routes import router as dsa_router
 
 app = FastAPI()
 Base.metadata.create_all(bind=engine)
@@ -20,12 +24,30 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(dsa_router)
+
 # ✅ FIX 1: Single shared agent instance used everywhere
 agent = InterviewAgent(
     company="Product Based",
     role="Software Engineer",
     level="Intermediate"
 )
+
+@app.post("/interview/speak")
+async def speak(text: str):
+    """
+    Convert AI question text to XTTS-v2 speech.
+    Returns WAV audio stream that the frontend plays directly.
+    """
+    try:
+        audio_bytes = text_to_speech(text)
+        return StreamingResponse(
+            io.BytesIO(audio_bytes),
+            media_type="audio/wav",
+            headers={"Content-Disposition": "inline; filename=speech.wav"}
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"TTS error: {str(e)}")
 
 @app.post("/interview/start")
 def start_interview():
