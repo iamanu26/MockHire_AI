@@ -115,6 +115,7 @@ const styles = {
     fontSize: "14px",
     fontWeight: "600",
   }
+
 };
 
 export default Navbar;
