@@ -1,4 +1,6 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
 import './About.css';
 
 const CAPS = [
@@ -33,6 +35,20 @@ const TEAM = [
   { avatar: "🎨", name: "Product & Design", role: "UX & Frontend", bio: "Crafted the voice-first interaction model, designed every screen with accessibility in mind, and built the React frontend that makes complex AI feel effortless." },
   { avatar: "⚙️", name: "Backend Systems", role: "API & Infrastructure", bio: "Architected the FastAPI backend, JWT authentication system, session management layer, and the real-time feedback scoring engine that powers every report." },
 ];
+
+// ── Smart CTA button — goes to /interview if logged in, else /login ──
+function SmartInterviewBtn({ className, label }) {
+  const { token } = useContext(AuthContext);
+  const navigate = useNavigate();
+  return (
+    <button
+      className={className}
+      onClick={() => navigate(token ? "/interview" : "/login")}
+    >
+      {label}
+    </button>
+  );
+}
 
 export default function About() {
   const videoRef = useRef(null);
@@ -186,7 +202,7 @@ export default function About() {
         <section className="ab-cta">
           <h2>Ready to start practising?</h2>
           <p>Join thousands of candidates already sharpening their skills with MockHire AI.</p>
-          <a href="/login" className="ab-cta-btn">Begin Your Session</a>
+          <SmartInterviewBtn className="ab-cta-btn" label="Begin Your Session" />
         </section>
       </div>
     </div>

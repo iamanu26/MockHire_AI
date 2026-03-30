@@ -1,5 +1,6 @@
-import { Link } from "react-router-dom";
-import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useState, useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
 import './Home.css';
 
 const TICKER_ITEMS = [
@@ -8,6 +9,20 @@ const TICKER_ITEMS = [
   "Voice Analysis", "Real-Time Feedback", "LLaMA Intelligence",
   "Technical Rounds", "HR Simulation", "Confidence Scoring",
 ];
+
+
+function StartBtn() {
+  const { token } = useContext(AuthContext);
+  const navigate = useNavigate();
+  return (
+    <button
+      className="btn-primary"
+      onClick={() => navigate(token ? "/interview" : "/login")}
+    >
+      Start Interview
+    </button>
+  );
+}
 
 export default function Home() {
   return (
@@ -38,9 +53,7 @@ export default function Home() {
           </p>
 
           <div className="cta-row">
-            <Link to="/login" className="btn-primary">
-              Start Interview
-            </Link>
+            <StartBtn />
             <Link to="/how_it_works" className="btn-ghost">
               See how it works
             </Link>
