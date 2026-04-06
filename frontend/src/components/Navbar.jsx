@@ -28,7 +28,7 @@ function Navbar() {
           ) : (
             <>
               <Link to="/login" style={{ textDecoration: "none" }}>
-                <button style={styles.primaryBtn}>Get Start</button>
+                <button style={styles.primaryBtn}>Get Started</button>
               </Link>
             </>
           )}
