@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <rect width="32" height="32" rx="8" fill="#0c1a08"/>
+
+  <!-- waveform bars left -->
+  <rect x="1" y="14" width="2.5" height="4" rx="1.2" fill="#c8f135" opacity="0.4"/>
+  <rect x="4.5" y="11" width="2.5" height="10" rx="1.2" fill="#c8f135" opacity="0.65"/>
+  <rect x="8" y="7" width="2.5" height="18" rx="1.2" fill="#c8f135" opacity="0.9"/>
+  <rect x="11.5" y="10" width="2.5" height="12" rx="1.2" fill="#c8f135" opacity="0.65"/>
+
+  <!-- mic capsule -->
+  <rect x="14.5" y="6" width="3" height="13" rx="1.5" fill="#c8f135"/>
+
+  <!-- waveform bars right -->
+  <rect x="18.5" y="10" width="2.5" height="12" rx="1.2" fill="#c8f135" opacity="0.65"/>
+  <rect x="22" y="7" width="2.5" height="18" rx="1.2" fill="#c8f135" opacity="0.9"/>
+  <rect x="25.5" y="11" width="2.5" height="10" rx="1.2" fill="#c8f135" opacity="0.65"/>
+  <rect x="29" y="14" width="2" height="4" rx="1" fill="#c8f135" opacity="0.4"/>
+
+  <!-- mic stand arc -->
+  <path d="M12.5 19 Q12.5 24 16 24 Q19.5 24 19.5 19" fill="none" stroke="#c8f135" stroke-width="1.2" stroke-linecap="round"/>
+  <line x1="16" y1="24" x2="16" y2="27" stroke="#c8f135" stroke-width="1.2" stroke-linecap="round"/>
+  <line x1="13" y1="27" x2="19" y2="27" stroke="#c8f135" stroke-width="1.2" stroke-linecap="round"/>
+</svg>
