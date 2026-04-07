@@ -47,9 +47,9 @@ Output ONLY a JSON object. No explanation, no markdown, no text before or after.
         {"role": "user",   "content": prompt}
     ]
     raw = ask_llama(messages, max_tokens=800)
-    print(f"[DSA DEBUG] {difficulty} raw response:\n{raw[:300]}\n---")
+    ##print(f"[DSA DEBUG] {difficulty} raw response:\n{raw[:300]}\n---")
     cleaned = clean_json(raw)
-    print(f"[DSA DEBUG] {difficulty} cleaned:\n{cleaned[:300]}\n---")
+    ##print(f"[DSA DEBUG] {difficulty} cleaned:\n{cleaned[:300]}\n---")
     return json.loads(cleaned)
 
 
@@ -87,9 +87,9 @@ def generate_dsa_problems(
     for key, label in [("easy","Easy"), ("medium","Medium"), ("hard","Hard")]:
         try:
             result[key] = ask_one_problem(label)
-            print(f"[DSA] ✅ {label} generated successfully: {result[key].get('title')}")
+            ##print(f"[DSA] ✅ {label} generated successfully: {result[key].get('title')}")
         except Exception as e:
-            print(f"[DSA] ❌ {label} failed ({e}), using fallback")
+            ##print(f"[DSA] ❌ {label} failed ({e}), using fallback")
             result[key] = FALLBACKS[key]
 
     return result
@@ -147,13 +147,13 @@ Return ONLY valid JSON, no markdown:
 
     try:
         raw = ask_llama(messages, max_tokens=400)
-        print(f"[DSA REVIEW DEBUG] raw:\n{raw[:300]}")
+        ##print(f"[DSA REVIEW DEBUG] raw:\n{raw[:300]}")
         cleaned = clean_json(raw)
         data = json.loads(cleaned)
 
         # Server-side score cap for trivially short submissions
         if is_trivial and data.get("score", 0) > 2:
-            print(f"[DSA REVIEW] Trivial code detected, capping score from {data['score']} to 1")
+            ##print(f"[DSA REVIEW] Trivial code detected, capping score from {data['score']} to 1")
             data["score"] = 1
             data["correctness"] = "Not Attempted"
             data["feedback"] = "The submitted code is too short to be a valid solution. A proper algorithm is required."
