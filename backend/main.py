@@ -1,6 +1,6 @@
 import json
 import re
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, Request
 from fastapi.responses import StreamingResponse
 import io
 from schemas import RegisterRequest, LoginRequest
@@ -13,7 +13,17 @@ from auth import get_db, hash_password, verify_password, create_access_token, ge
 from text_to_speech import text_to_speech
 from dsa_routes import router as dsa_router
 
+#  headers for rates and limits
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
+
+# Create limiter — identifies users by IP
+limiter = Limiter(key_func=get_remote_address)
 app = FastAPI()
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
 Base.metadata.create_all(bind=engine)
 
 app.add_middleware(
@@ -26,7 +36,7 @@ app.add_middleware(
 
 app.include_router(dsa_router)
 
-# ✅ FIX 1: Single shared agent instance used everywhere
+# Single shared agent instance used everywhere
 agent = InterviewAgent(
     company="Product Based",
     role="Software Engineer",
@@ -34,7 +44,8 @@ agent = InterviewAgent(
 )
 
 @app.post("/interview/speak")
-async def speak(text: str):
+@limiter.limit("10/minute")
+async def speak(request: Request, text: str):
     """
     Convert AI question text to XTTS-v2 speech.
     Returns WAV audio stream that the frontend plays directly.
@@ -56,12 +67,14 @@ def start_interview():
     return {"message": "Session started, history cleared"}
 
 @app.post("/interview/hr")
-def hr_interview(answer: str):
+@limiter.limit("10/minute")
+def hr_interview(request: Request, answer: str):
     response = agent.hr_interviewer(answer)
     return {"question": response}
 
 @app.post("/interview/tech")
-def tech_interview(answer: str):
+@limiter.limit("10/minute")
+def tech_interview(request: Request, answer: str):
     response = agent.tech_interviewer(answer)
     return {"question": response}
 
@@ -72,7 +85,8 @@ async def voice_tech_interview(text: str):
 
 # Auth routes
 @app.post("/auth/register")
-def register(data: RegisterRequest, db: Session = Depends(get_db)):
+@limiter.limit("5/minute")
+def register(request: Request, data: RegisterRequest, db: Session = Depends(get_db)):
     if db.query(User).filter(User.email == data.email).first():
         raise HTTPException(status_code=400, detail="Email already exists")
     user = User(name=data.name, email=data.email, password=hash_password(data.password))
@@ -81,7 +95,8 @@ def register(data: RegisterRequest, db: Session = Depends(get_db)):
     return {"message": "User registered successfully"}
 
 @app.post("/auth/login")
-def login(data: LoginRequest, db: Session = Depends(get_db)):
+@limiter.limit("5/minute")
+def login(request: Request, data: LoginRequest, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == data.email).first()
     if not user or not verify_password(data.password, user.password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
@@ -97,7 +112,9 @@ def stop_interview():
     return {"message": "Interview stopped"}
 
 @app.post("/interview/feedback")
+@limiter.limit("10/minute")
 def interview_feedback(
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
@@ -106,7 +123,7 @@ def interview_feedback(
 
     raw_feedback = agent.generate_feedback()
 
-    # ✅ FIX 2: Strip markdown code fences before parsing JSON
+    # Strip markdown code fences before parsing JSON
     cleaned = re.sub(r"```(?:json)?", "", raw_feedback).strip().rstrip("```").strip()
 
     try:
@@ -114,14 +131,13 @@ def interview_feedback(
     except Exception:
         raise HTTPException(status_code=500, detail="Invalid feedback format from AI. Please try again.")
 
-    # ✅ FIX 2: Parse scores safely — handles "7/10", "7", 7, "7.5/10"
+    # Parse scores safely — handles "7/10", "7", 7, "7.5/10"
     def parse_score(val) -> int:
         if isinstance(val, int):
             return val
         if isinstance(val, float):
             return int(round(val))
         s = str(val).strip()
-        # Extract first number from strings like "7/10" or "8.5/10"
         match = re.search(r"(\d+(?:\.\d+)?)", s)
         if match:
             return int(round(float(match.group(1))))
@@ -153,7 +169,9 @@ def interview_feedback(
     }}
 
 @app.get("/interview/history")
+@limiter.limit("30/minute")
 def interview_history(
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
@@ -164,3 +182,7 @@ def interview_history(
         .all()
     )
     return results
+
+@app.get("/health")
+def health():
+    return {"status": "ok"}
