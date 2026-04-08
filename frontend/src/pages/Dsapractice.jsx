@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import "./DSAPractice.css"; // rename your css file to DSAPractice.css OR change this to Dsapractice.css
+import "./Dsapractice.css"; 
 
 // ── Constants ─────────────────────────────────────────────────────
 const LANGUAGES = [

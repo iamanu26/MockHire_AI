@@ -1,5 +1,8 @@
 import { useEffect } from "react";
+import { Link } from "react-router-dom";
 import './How_it_work.css';
+
+
 
 const STEPS = [
   { icon: "🎙️", title: "Voice Capture", desc: "Browser-native speech recognition captures every word with precision, enabling fluent real-time transcription." },
@@ -102,8 +105,16 @@ export default function How_it_works() {
       <section className="feat-cta">
         <h2>Ready to practice?</h2>
         <p>Join thousands of candidates already using MockHire AI to land their dream role.</p>
-        <a href="/login" className="feat-cta-btn">Start Your Interview</a>
+
+        <div style={{ display: "flex", alignItems: "center", gap: "1.5rem", justifyContent: "center" }}>
+          <a href="/login" className="feat-cta-btn">Start Your Interview</a>
+          <Link to="https://mock-hire-ai-documentation.vercel.app/" className="btn-ghost">
+            Project Documentation & Architecture 
+          </Link>
+        </div>
       </section>
+
+      
     </div>
   );
 }
