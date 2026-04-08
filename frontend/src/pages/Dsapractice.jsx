@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Dsapractice.css"; 
+const BASE_URL = import.meta.env.VITE_API_URL;
 
 // ── Constants ─────────────────────────────────────────────────────
 const LANGUAGES = [
@@ -48,7 +49,7 @@ export default function DSAPractice() {
     setCodes({ 0: STARTER.python, 1: STARTER.python, 2: STARTER.python });
 
     const token = localStorage.getItem("token");
-    fetch("http://127.0.0.1:8000/dsa/questions", {
+    fetch(`${BASE_URL}/dsa/questions`, {
       method: "POST",
       headers: { Authorization: `Bearer ${token}` }
     })
@@ -106,7 +107,7 @@ export default function DSAPractice() {
 
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://127.0.0.1:8000/dsa/review", {
+      const res = await fetch(`${BASE_URL}/dsa/review`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import './Interview.css';
+const BASE_URL = import.meta.env.VITE_API_URL;
 
 export default function Interview() {
   const [type, setType] = useState("tech");
@@ -15,7 +16,7 @@ export default function Interview() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/interview/start", { method: "POST" })
+    fetch(`${BASE_URL}/interview/start`, { method: "POST" })
       .catch(() => console.warn("Could not reset interview session"));
   }, []);
 
@@ -86,8 +87,8 @@ export default function Interview() {
   const askQuestion = async (userAnswer) => {
     setLoading(true);
     const endpoint = type === "tech"
-      ? "http://127.0.0.1:8000/interview/tech"
-      : "http://127.0.0.1:8000/interview/hr";
+      ? `${BASE_URL}/interview/tech`
+      : `${BASE_URL}/interview/hr`;
     try {
       const res = await fetch(`${endpoint}?answer=${encodeURIComponent(userAnswer)}`, { method: "POST" });
       const data = await res.json();
@@ -111,7 +112,7 @@ export default function Interview() {
     setQuestion("Welcome! Please introduce yourself.");
     setQuestionKey(k => k + 1);
     setLoading(false);
-    fetch("http://127.0.0.1:8000/interview/start", { method: "POST" })
+    fetch(`${BASE_URL}/interview/start`, { method: "POST" })
       .catch(() => console.warn("Could not reset interview session"));
   };
 
@@ -127,7 +128,7 @@ export default function Interview() {
     setWaveActive(false);
     try {
       const token = localStorage.getItem("token");
-      await fetch("http://127.0.0.1:8000/interview/stop", {
+      await fetch(`${BASE_URL}/interview/stop`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
       });

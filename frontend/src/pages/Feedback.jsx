@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import './Feedback.css';
+const BASE_URL = import.meta.env.VITE_API_URL;
 
 export default function Feedback() {
   const [feedback, setFeedback] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/interview/feedback", {
+    fetch(`${BASE_URL}/interview/feedback`, {
       method: "POST",
       headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
     })
