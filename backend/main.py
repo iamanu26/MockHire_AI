@@ -28,7 +28,7 @@ Base.metadata.create_all(bind=engine)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://mock-hire-ai-bay.vercel.app/"], # allow  origins in production 
+    allow_origins=["https://mock-hire-ai-bay.vercel.app"], # allow  origins in production 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
