@@ -28,7 +28,7 @@ Base.metadata.create_all(bind=engine)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=["*"], # allow all origins for simplicity; in production, specify your frontend URL
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
