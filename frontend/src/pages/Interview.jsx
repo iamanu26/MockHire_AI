@@ -6,7 +6,7 @@ const BASE_URL = import.meta.env.VITE_API_URL;
 export default function Interview() {
   const [type, setType] = useState("tech");
   const [answer, setAnswer] = useState("");
-  const [question, setQuestion] = useState("Welcome! Please introduce yourself.");
+  const [question, setQuestion] = useState("Welcome! ");
   const [status, setStatus] = useState("Ready");
   const [loading, setLoading] = useState(false);
   const [interviewState, setInterviewState] = useState("idle");
