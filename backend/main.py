@@ -1,62 +1,316 @@
 import json
+import os
 import re
-from fastapi import FastAPI, Depends, HTTPException, Request
-from fastapi.responses import StreamingResponse
-import io
-from schemas import RegisterRequest, LoginRequest
-from fastapi.middleware.cors import CORSMiddleware
-from interview_agent import InterviewAgent
-from sqlalchemy.orm import Session
-from database import Base, engine
-from models import User, InterviewResult
-from auth import get_db, hash_password, verify_password, create_access_token, get_current_user
-from text_to_speech import text_to_speech
-from dsa_routes import router as dsa_router
+import secrets
+import re
+from dotenv import load_dotenv
+load_dotenv()
 
-#  headers for rates and limits
+import httpx
+from datetime import datetime
+
+from fastapi import FastAPI, Depends, HTTPException, Request
+from fastapi.responses import RedirectResponse, StreamingResponse
+import io
+
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 
-# Create limiter — identifies users by IP
+from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy.orm import Session
+
+from schemas import RegisterRequest, LoginRequest, ForgotPasswordRequest, ResetPasswordRequest
+from database import Base, engine
+from models import User, InterviewResult
+from auth import (
+    get_db, hash_password, verify_password,
+    create_access_token, get_current_user,
+    generate_verify_token, generate_reset_token, reset_token_expiry,
+)
+from email_utils import send_verification_email, send_reset_email
+from interview_agent import InterviewAgent
+from text_to_speech import text_to_speech
+from dsa_routes import router as dsa_router
+from dotenv import load_dotenv
+
+EMAIL_REGEX = re.compile(r"^[^\s@]+@[^\s@]+\.[^\s@]+$")
+
+
+
+# ── App setup ────────────────────────────────────────────────────────────────
 limiter = Limiter(key_func=get_remote_address)
-app = FastAPI()
+app     = FastAPI()
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 Base.metadata.create_all(bind=engine)
 
+FRONTEND_URL    = os.getenv("FRONTEND_URL", "http://localhost:5173")
+GOOGLE_CLIENT_ID     = os.getenv("GOOGLE_CLIENT_ID")
+GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
+BACKEND_URL          = os.getenv("BACKEND_URL", "http://localhost:8000")
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://mock-hire-ai-bay.vercel.app",
-        "https://mock-hire-ai-git-main-anurag-dubeys-projects-7936ebb6.vercel.app",
-        "https://mock-hire-hxb6cts9m-anurag-dubeys-projects-7936ebb6.vercel.app",
-        "http://localhost:3000",
         "http://localhost:5173",
+        FRONTEND_URL,
     ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-
 app.include_router(dsa_router)
 
-# Single shared agent instance used everywhere
 agent = InterviewAgent(
     company="Product Based",
     role="Software Engineer",
     level="Intermediate"
 )
 
+
+# ════════════════════════════════════════════════════════════════════════════
+#  AUTH — REGISTER
+# ════════════════════════════════════════════════════════════════════════════
+@app.post("/auth/register")
+@limiter.limit("5/minute")
+async def register(request: Request, data: RegisterRequest, db: Session = Depends(get_db)):
+    if db.query(User).filter(User.email == data.email).first():
+        raise HTTPException(status_code=400, detail="Email already registered.")
+
+    # ← REMOVE this, Pydantic already checks it
+    # if len(data.password) < 8:
+    #     raise HTTPException(status_code=400, detail="Password must be at least 8 characters.")
+
+    token = generate_verify_token()
+    user  = User(
+        name         = data.name,
+        email        = data.email,
+        password     = hash_password(data.password),
+        is_verified  = False,
+        verify_token = token,
+    )
+    db.add(user)
+    db.commit()
+
+    await send_verification_email(data.email, data.name, token)
+    return {"message": "Account created! Please check your email to verify before logging in."}
+
+# ════════════════════════════════════════════════════════════════════════════
+#  AUTH — VERIFY EMAIL  (link from email → redirect to frontend)
+# ════════════════════════════════════════════════════════════════════════════
+@app.get("/auth/verify")
+def verify_email(token: str, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.verify_token == token).first()
+    if not user:
+        return RedirectResponse(url=f"{FRONTEND_URL}/login?error=invalid-token")
+
+    user.is_verified  = True
+    user.verify_token = None
+    db.commit()
+    return RedirectResponse(url=f"{FRONTEND_URL}/login?verified=true")
+
+
+# ════════════════════════════════════════════════════════════════════════════
+#  AUTH — LOGIN
+# ════════════════════════════════════════════════════════════════════════════
+@app.post("/auth/login")
+@limiter.limit("10/minute")
+def login(request: Request, data: LoginRequest, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.email == data.email).first()
+
+    if not user or not user.password:
+        raise HTTPException(status_code=401, detail="Invalid email or password.")
+
+    if not verify_password(data.password, user.password):
+        raise HTTPException(status_code=401, detail="Invalid email or password.")
+
+    if not user.is_verified:
+        raise HTTPException(
+            status_code=403,
+            detail="Email not verified. Please check your inbox and verify before logging in."
+        )
+
+    token = create_access_token({"user_id": user.id})
+    return {
+        "access_token": token,
+        "token_type":   "bearer",
+        "user": {
+            "id":         user.id,
+            "name":       user.name,
+            "email":      user.email,
+            "avatar_url": user.avatar_url,
+        }
+    }
+
+
+# ════════════════════════════════════════════════════════════════════════════
+#  AUTH — RESEND VERIFICATION
+# ════════════════════════════════════════════════════════════════════════════
+@app.post("/auth/resend-verification")
+@limiter.limit("3/minute")
+async def resend_verification(request: Request, data: ForgotPasswordRequest, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.email == data.email).first()
+    # Always return same message to prevent email enumeration
+    if not user or user.is_verified:
+        return {"message": "If that email exists and is unverified, we've sent a new link."}
+
+    token            = generate_verify_token()
+    user.verify_token = token
+    db.commit()
+
+    await send_verification_email(user.email, user.name, token)
+    return {"message": "If that email exists and is unverified, we've sent a new link."}
+
+
+# ════════════════════════════════════════════════════════════════════════════
+#  AUTH — FORGOT PASSWORD
+# ════════════════════════════════════════════════════════════════════════════
+@app.post("/auth/forgot-password")
+@limiter.limit("3/minute")
+async def forgot_password(request: Request, data: ForgotPasswordRequest, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.email == data.email).first()
+    # Always return 200 — prevents email enumeration
+    if user and user.password:   # only for non-Google accounts
+        token                    = generate_reset_token()
+        user.reset_token         = token
+        user.reset_token_expires = reset_token_expiry()
+        db.commit()
+        await send_reset_email(user.email, user.name, token)
+
+    return {"message": "If an account with that email exists, you'll receive a reset link shortly."}
+
+
+# ════════════════════════════════════════════════════════════════════════════
+#  AUTH — RESET PASSWORD
+# ════════════════════════════════════════════════════════════════════════════
+@app.post("/auth/reset-password")
+@limiter.limit("5/minute")
+def reset_password(request: Request, data: ResetPasswordRequest, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.reset_token == data.token).first()
+
+    if not user:
+        raise HTTPException(status_code=400, detail="Invalid or expired reset link.")
+
+    if user.reset_token_expires < datetime.utcnow():
+        user.reset_token         = None
+        user.reset_token_expires = None
+        db.commit()
+        raise HTTPException(status_code=400, detail="Reset link has expired. Please request a new one.")
+
+    if len(data.new_password) < 8:
+        raise HTTPException(status_code=400, detail="Password must be at least 8 characters.")
+
+    user.password            = hash_password(data.new_password)
+    user.reset_token         = None
+    user.reset_token_expires = None
+    user.is_verified         = True   # if they reset via email, they proved ownership
+    db.commit()
+
+    return {"message": "Password updated successfully. You can now log in."}
+
+
+# ════════════════════════════════════════════════════════════════════════════
+#  AUTH — GOOGLE OAUTH  (step 1: redirect to Google)
+# ════════════════════════════════════════════════════════════════════════════
+@app.get("/auth/google")
+def google_login():
+    params = (
+        f"client_id={GOOGLE_CLIENT_ID}"
+        f"&redirect_uri={BACKEND_URL}/auth/google/callback"
+        f"&response_type=code"
+        f"&scope=openid email profile"
+        f"&access_type=offline"
+    )
+    return RedirectResponse(url=f"https://accounts.google.com/o/oauth2/v2/auth?{params}")
+
+
+# ════════════════════════════════════════════════════════════════════════════
+#  AUTH — GOOGLE OAUTH  (step 2: callback from Google)
+# ════════════════════════════════════════════════════════════════════════════
+@app.get("/auth/google/callback")
+async def google_callback(code: str, db: Session = Depends(get_db)):
+    # Exchange code for tokens
+    async with httpx.AsyncClient() as client:
+        token_res = await client.post(
+            "https://oauth2.googleapis.com/token",
+            data={
+                "code":          code,
+                "client_id":     GOOGLE_CLIENT_ID,
+                "client_secret": GOOGLE_CLIENT_SECRET,
+                "redirect_uri":  f"{BACKEND_URL}/auth/google/callback",
+                "grant_type":    "authorization_code",
+            },
+        )
+        token_data = token_res.json()
+        if "error" in token_data:
+            return RedirectResponse(url=f"{FRONTEND_URL}/login?error=google-failed")
+
+        # Fetch user info from Google
+        userinfo_res = await client.get(
+            "https://www.googleapis.com/oauth2/v3/userinfo",
+            headers={"Authorization": f"Bearer {token_data['access_token']}"},
+        )
+        google_user = userinfo_res.json()
+
+    google_id  = google_user.get("sub")
+    email      = google_user.get("email")
+    name       = google_user.get("name", "User")
+    avatar_url = google_user.get("picture")
+
+    if not email:
+        return RedirectResponse(url=f"{FRONTEND_URL}/login?error=google-no-email")
+
+    # Find or create user
+    user = db.query(User).filter(User.email == email).first()
+
+    if user:
+        # Link Google ID if not already linked
+        if not user.google_id:
+            user.google_id  = google_id
+            user.avatar_url = avatar_url
+        user.is_verified = True   # Google confirmed the email
+        db.commit()
+    else:
+        # Brand new Google user
+        user = User(
+            name        = name,
+            email       = email,
+            google_id   = google_id,
+            avatar_url  = avatar_url,
+            is_verified = True,
+            password    = None,   # no password for Google users
+        )
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+
+    jwt_token = create_access_token({"user_id": user.id})
+    # Redirect to frontend with token in URL (frontend stores it)
+    return RedirectResponse(url=f"{FRONTEND_URL}/auth/callback?token={jwt_token}")
+
+
+# ════════════════════════════════════════════════════════════════════════════
+#  AUTH — ME
+# ════════════════════════════════════════════════════════════════════════════
+@app.get("/auth/me")
+def me(current_user: User = Depends(get_current_user)):
+    return {
+        "id":         current_user.id,
+        "name":       current_user.name,
+        "email":      current_user.email,
+        "avatar_url": current_user.avatar_url,
+    }
+
+
+# ════════════════════════════════════════════════════════════════════════════
+#  INTERVIEW ROUTES  (unchanged from your original)
+# ════════════════════════════════════════════════════════════════════════════
 @app.post("/interview/speak")
 @limiter.limit("10/minute")
 async def speak(request: Request, text: str):
-    """
-    Convert AI question text to XTTS-v2 speech.
-    Returns WAV audio stream that the frontend plays directly.
-    """
     try:
         audio_bytes = text_to_speech(text)
         return StreamingResponse(
@@ -69,7 +323,6 @@ async def speak(request: Request, text: str):
 
 @app.post("/interview/start")
 def start_interview():
-    """Call this at the beginning of every new session to wipe old history."""
     agent.history = []
     return {"message": "Session started, history cleared"}
 
@@ -86,33 +339,10 @@ def tech_interview(request: Request, answer: str):
     return {"question": response}
 
 @app.post("/interview/voice/tech")
-async def voice_tech_interview(text: str):
+@limiter.limit("10/minute")
+async def voice_tech_interview(request: Request, text: str):
     ai_text = agent.tech_interviewer(text)
     return {"reply": ai_text}
-
-# Auth routes
-@app.post("/auth/register")
-@limiter.limit("5/minute")
-def register(request: Request, data: RegisterRequest, db: Session = Depends(get_db)):
-    if db.query(User).filter(User.email == data.email).first():
-        raise HTTPException(status_code=400, detail="Email already exists")
-    user = User(name=data.name, email=data.email, password=hash_password(data.password))
-    db.add(user)
-    db.commit()
-    return {"message": "User registered successfully"}
-
-@app.post("/auth/login")
-@limiter.limit("5/minute")
-def login(request: Request, data: LoginRequest, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.email == data.email).first()
-    if not user or not verify_password(data.password, user.password):
-        raise HTTPException(status_code=401, detail="Invalid credentials")
-    token = create_access_token({"user_id": user.id})
-    return {"access_token": token, "token_type": "bearer"}
-
-@app.get("/auth/me")
-def me(current_user: User = Depends(get_current_user)):
-    return {"id": current_user.id, "name": current_user.name, "email": current_user.email}
 
 @app.post("/interview/stop")
 def stop_interview():
@@ -126,44 +356,33 @@ def interview_feedback(
     current_user: User = Depends(get_current_user)
 ):
     if not agent.history:
-        raise HTTPException(status_code=400, detail="No interview session found. Please complete an interview first.")
+        raise HTTPException(status_code=400, detail="No interview session found.")
 
     raw_feedback = agent.generate_feedback()
-
-    # Strip markdown code fences before parsing JSON
-    cleaned = re.sub(r"```(?:json)?", "", raw_feedback).strip().rstrip("```").strip()
+    cleaned      = re.sub(r"```(?:json)?", "", raw_feedback).strip().rstrip("```").strip()
 
     try:
         feedback = json.loads(cleaned)
     except Exception:
-        raise HTTPException(status_code=500, detail="Invalid feedback format from AI. Please try again.")
+        raise HTTPException(status_code=500, detail="Invalid feedback format from AI.")
 
-    # Parse scores safely — handles "7/10", "7", 7, "7.5/10"
     def parse_score(val) -> int:
-        if isinstance(val, int):
-            return val
-        if isinstance(val, float):
-            return int(round(val))
-        s = str(val).strip()
-        match = re.search(r"(\d+(?:\.\d+)?)", s)
-        if match:
-            return int(round(float(match.group(1))))
-        return 0
+        if isinstance(val, int):   return val
+        if isinstance(val, float): return int(round(val))
+        match = re.search(r"(\d+(?:\.\d+)?)", str(val))
+        return int(round(float(match.group(1)))) if match else 0
 
     result = InterviewResult(
-        user_id=current_user.id,
-        communication=parse_score(feedback.get("communication", 0)),
-        confidence=parse_score(feedback.get("confidence", 0)),
-        technical=parse_score(feedback.get("technical", 0)),
-        grammar=parse_score(feedback.get("grammar", 0)),
-        overall=parse_score(feedback.get("overall", 0)),
-        summary=feedback.get("summary", "No summary provided."),
+        user_id       = current_user.id,
+        communication = parse_score(feedback.get("communication", 0)),
+        confidence    = parse_score(feedback.get("confidence", 0)),
+        technical     = parse_score(feedback.get("technical", 0)),
+        grammar       = parse_score(feedback.get("grammar", 0)),
+        overall       = parse_score(feedback.get("overall", 0)),
+        summary       = feedback.get("summary", "No summary provided."),
     )
-
     db.add(result)
     db.commit()
-
-    # Clear history after saving
     agent.history = []
 
     return {"feedback": {
