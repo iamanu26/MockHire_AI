@@ -16,6 +16,7 @@ ALGORITHM                    = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES  = 60 * 24 * 7   # 7 days
 RESET_TOKEN_EXPIRE_MINUTES   = 15            # 15 minutes
 
+
 pwd_context   = CryptContext(schemes=["argon2"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 

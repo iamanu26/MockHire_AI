@@ -2,6 +2,9 @@ import json
 import os
 import re
 import secrets
+import re
+from dotenv import load_dotenv
+load_dotenv()
 
 import httpx
 from datetime import datetime
@@ -29,6 +32,11 @@ from email_utils import send_verification_email, send_reset_email
 from interview_agent import InterviewAgent
 from text_to_speech import text_to_speech
 from dsa_routes import router as dsa_router
+from dotenv import load_dotenv
+
+EMAIL_REGEX = re.compile(r"^[^\s@]+@[^\s@]+\.[^\s@]+$")
+
+
 
 # ── App setup ────────────────────────────────────────────────────────────────
 limiter = Limiter(key_func=get_remote_address)
@@ -72,8 +80,9 @@ async def register(request: Request, data: RegisterRequest, db: Session = Depend
     if db.query(User).filter(User.email == data.email).first():
         raise HTTPException(status_code=400, detail="Email already registered.")
 
-    if len(data.password) < 8:
-        raise HTTPException(status_code=400, detail="Password must be at least 8 characters.")
+    # ← REMOVE this, Pydantic already checks it
+    # if len(data.password) < 8:
+    #     raise HTTPException(status_code=400, detail="Password must be at least 8 characters.")
 
     token = generate_verify_token()
     user  = User(
@@ -88,7 +97,6 @@ async def register(request: Request, data: RegisterRequest, db: Session = Depend
 
     await send_verification_email(data.email, data.name, token)
     return {"message": "Account created! Please check your email to verify before logging in."}
-
 
 # ════════════════════════════════════════════════════════════════════════════
 #  AUTH — VERIFY EMAIL  (link from email → redirect to frontend)

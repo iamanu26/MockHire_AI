@@ -3,6 +3,10 @@ import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import './Login.css';
 
+// ── Email validator ──────────────────────────────────────────────────────────
+const isValidEmail = (email) =>
+  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
 function Login() {
   const [email,    setEmail]    = useState("");
   const [password, setPassword] = useState("");
@@ -23,7 +27,8 @@ function Login() {
   const googleFailed  = searchParams.get("error")    === "google-failed";
 
   const handleLogin = async () => {
-    if (!email || !password) { setError("Please fill in all fields."); return; }
+    if (!email || !password)  { setError("Please fill in all fields."); return; }
+    if (!isValidEmail(email)) { setError("Please enter a valid email address (e.g. you@example.com)."); return; }
     setLoading(true);
     setError("");
     try {
