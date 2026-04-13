@@ -14,4 +14,3 @@ slowapi==0.1.9
 httpx==0.28.1
 fastapi-mail==1.6.2
 pypdf
-feature/v3-ui 
