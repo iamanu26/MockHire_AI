@@ -17,7 +17,7 @@ function Navbar() {
         <div style={styles.links}>
           <Link style={styles.link} to="/">Home</Link>
           <Link style={styles.link} to="/how_it_works">How it works</Link>
-          <div style={styles.linkWithIcon}>Resources</div>
+          <Link style={styles.link} to="/resources">Resources</Link>
           <Link style={styles.link} to="/about">About</Link>
 
           {token ? (

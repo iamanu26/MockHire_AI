@@ -13,6 +13,7 @@ import Register      from "./pages/Register";
 import Interview     from "./pages/Interview";
 import Feedback      from "./pages/Feedback";
 import How_it_works  from "./pages/How_it_works";
+import Resources     from "./pages/Resources";
 import Dsapractice   from "./pages/Dsapractice";
 
 // ── New auth pages ──────────────────────────────────────────────
@@ -30,6 +31,7 @@ function App() {
           {/* ── Public ── */}
           <Route path="/"                    element={<Home />} />
           <Route path="/how_it_works"        element={<How_it_works />} />
+          
           <Route path="/about"               element={<About />} />
           <Route path="/services"            element={<Services />} />
           <Route path="/contact"             element={<Contact />} />
@@ -49,6 +51,9 @@ function App() {
           }/>
           <Route path="/interview" element={
             <ProtectedRoute><Interview /></ProtectedRoute>
+          }/>
+          <Route path="/resources" element={
+            <ProtectedRoute><Resources /></ProtectedRoute>
           }/>
         </Routes>
       </BrowserRouter>
