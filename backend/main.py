@@ -32,7 +32,7 @@ from interview_agent import InterviewAgent
 from text_to_speech import text_to_speech
 from dsa_routes import router as dsa_router
 from resume_routes import router as resume_router
-from resources_route import router as resources_router
+from profile_routes import router as profile_router  # ← swapped from resources_route
 
 EMAIL_REGEX = re.compile(r"^[^\s@]+@[^\s@]+\.[^\s@]+$")
 
@@ -58,7 +58,7 @@ app.add_middleware(
 
 app.include_router(dsa_router)
 app.include_router(resume_router)
-app.include_router(resources_router)
+app.include_router(profile_router)  # ← swapped from resources_router
 
 agent = InterviewAgent(
     company="Product Based",
@@ -194,7 +194,6 @@ def me(current_user: User = Depends(get_current_user)):
 
 # ── INTERVIEW ROUTES ─────────────────────────────────────────────
 
-# Resume context model
 class ResumeContext(BaseModel):
     name: str = ""
     level: str = "Intermediate"
