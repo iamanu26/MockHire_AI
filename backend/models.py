@@ -12,6 +12,11 @@ class User(Base):
     email                = Column(String(255), unique=True, index=True, nullable=False)
     password             = Column(String(255), nullable=True)   # nullable for Google-only users
 
+    # ── Profile fields ──────────────────────────────────────────────────
+    bio                  = Column(String(500), nullable=True)
+    college              = Column(String(255), nullable=True)
+    role_title           = Column(String(255), nullable=True)
+
     # ── Email verification ──────────────────────────────────────────────
     is_verified          = Column(Boolean, default=False, nullable=False)
     verify_token         = Column(String(64), nullable=True)
