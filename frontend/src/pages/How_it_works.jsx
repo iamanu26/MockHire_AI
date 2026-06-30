@@ -1,5 +1,7 @@
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
 import './How_it_work.css';
 
 
@@ -28,6 +30,9 @@ const FLOW = [
 ];
 
 export default function How_it_works() {
+
+  const { token } = useContext(AuthContext);
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -107,14 +112,16 @@ export default function How_it_works() {
         <p>Join thousands of candidates already using MockHire AI to land their dream role.</p>
 
         <div style={{ display: "flex", alignItems: "center", gap: "1.5rem", justifyContent: "center" }}>
-          <a href="/login" className="feat-cta-btn">Start Your Interview</a>
+          <Link to={token ? "/interview" : "/login"} className="feat-cta-btn">
+            Start Your Interview
+          </Link>
           <Link to="https://mock-hire-ai-documentation.vercel.app/" className="btn-ghost">
-            Project Documentation & Architecture 
+            Project Documentation & Architecture
           </Link>
         </div>
       </section>
 
-      
+
     </div>
   );
 }

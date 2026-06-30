@@ -6,10 +6,10 @@ const BASE_URL = import.meta.env.VITE_API_URL;
 
 function Navbar() {
   const { token, logout } = useContext(AuthContext);
-  const navigate           = useNavigate();
-  const [user, setUser]   = useState(null);
-  const [open, setOpen]   = useState(false);
-  const dropdownRef        = useRef(null);
+  const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+  const [open, setOpen] = useState(false);
+  const dropdownRef = useRef(null);
 
   // Fetch user info for avatar + name
   useEffect(() => {
@@ -19,7 +19,7 @@ function Navbar() {
     })
       .then(r => r.json())
       .then(d => setUser(d))
-      .catch(() => {});
+      .catch(() => { });
   }, [token]);
 
   // Close dropdown when clicking outside
@@ -95,6 +95,16 @@ function Navbar() {
                       onClick={() => { setOpen(false); navigate("/profile"); }}
                     >
                       👤 My Profile
+                    </button>
+
+                    {/* Interview History */}
+                    <button
+                      style={styles.dropdownItem}
+                      onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.06)"}
+                      onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+                      onClick={() => { setOpen(false); navigate("/history"); }}
+                    >
+                      📋 Interview History
                     </button>
 
                     {/* Start Interview */}
