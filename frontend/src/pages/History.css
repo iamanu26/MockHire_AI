@@ -1,0 +1,124 @@
+/* History.css — MockHire AI */
+@keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+@keyframes orbFloat { 0%,100%{transform:translateY(0) translateX(0)} 33%{transform:translateY(-28px) translateX(18px)} 66%{transform:translateY(18px) translateX(-14px)} }
+@keyframes spin { to{transform:rotate(360deg)} }
+
+.hist-page {
+  min-height: 100vh; background: #05080f;
+  font-family: 'DM Mono', monospace;
+  position: relative; overflow-x: hidden;
+  padding: 100px 24px 80px;
+}
+.hist-grid {
+  position: fixed; inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.022) 1px, transparent 1px);
+  background-size: 48px 48px; pointer-events: none; z-index: 0;
+}
+.hist-orb-1 {
+  position: fixed; top:-8%; left:-8%; width:480px; height:480px; border-radius:50%;
+  background: radial-gradient(circle, rgba(200,241,53,0.06) 0%, transparent 70%);
+  animation: orbFloat 14s ease-in-out infinite; pointer-events:none; z-index:0;
+}
+.hist-orb-2 {
+  position: fixed; bottom:-8%; right:-8%; width:560px; height:560px; border-radius:50%;
+  background: radial-gradient(circle, rgba(99,102,241,0.07) 0%, transparent 70%);
+  animation: orbFloat 18s ease-in-out infinite reverse; pointer-events:none; z-index:0;
+}
+.hist-content {
+  position: relative; z-index: 1;
+  max-width: 860px; margin: 0 auto;
+  display: flex; flex-direction: column; gap: 24px;
+  animation: fadeUp 0.5s ease both;
+}
+
+/* Loading */
+.hist-loading {
+  display: flex; align-items: center; justify-content: center;
+  gap: 14px; min-height: 60vh; color: #4b5563; font-size: 14px;
+}
+.hist-spin {
+  width: 28px; height: 28px; border-radius: 50%;
+  border: 2px solid rgba(200,241,53,0.15); border-top-color: #c8f135;
+  animation: spin 0.8s linear infinite;
+}
+
+/* Header */
+.hist-header {
+  display: flex; align-items: center; gap: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+.hist-back-btn {
+  padding: 8px 16px; border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: transparent; color: #64748b;
+  font-family: 'DM Mono', monospace; font-size: 12px;
+  cursor: pointer; transition: all 0.2s; flex-shrink: 0;
+}
+.hist-back-btn:hover { border-color: rgba(255,255,255,0.2); color: #94a3b8; }
+.hist-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(28px, 4vw, 40px); color: #fff;
+  letter-spacing: 1px; margin: 0 0 2px;
+}
+.hist-subtitle { color: #4b5563; font-size: 12px; margin: 0; }
+
+/* Empty */
+.hist-empty {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 16px; padding: 60px; color: #4b5563; font-size: 14px;
+  border: 1px dashed rgba(255,255,255,0.08); border-radius: 14px;
+}
+.hist-start-btn {
+  padding: 10px 24px; border-radius: 8px; border: none;
+  background: #c8f135; color: #05080f;
+  font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 700;
+  cursor: pointer; transition: all 0.2s;
+}
+.hist-start-btn:hover { background: #d4ff40; }
+
+/* List */
+.hist-list { display: flex; flex-direction: column; gap: 16px; }
+.hist-card {
+  background: rgba(255,255,255,0.025);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 14px; padding: 20px;
+  transition: border-color 0.2s;
+}
+.hist-card:hover { border-color: rgba(255,255,255,0.14); }
+
+/* Card top */
+.hist-card-top {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 16px; flex-wrap: wrap;
+}
+.hist-card-num  { color: #4b5563; font-size: 12px; letter-spacing: 1px; }
+.hist-card-date { color: #64748b; font-size: 12px; flex: 1; }
+.hist-card-overall {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 24px; letter-spacing: 1px;
+}
+
+/* Bars */
+.hist-scores { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+.hist-score-row { display: flex; align-items: center; gap: 10px; }
+.hist-score-label {
+  width: 110px; flex-shrink: 0;
+  color: #4b5563; font-size: 11px; letter-spacing: 1px;
+}
+.hist-score-track {
+  flex: 1; height: 4px; border-radius: 4px;
+  background: rgba(255,255,255,0.07);
+}
+.hist-score-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
+.hist-score-val { width: 36px; text-align: right; font-size: 12px; flex-shrink: 0; }
+
+/* Summary */
+.hist-card-summary {
+  color: #64748b; font-size: 13px; line-height: 1.6;
+  font-family: 'Instrument Serif', serif;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  padding-top: 10px; margin-top: 4px;
+}

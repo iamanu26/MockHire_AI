@@ -206,59 +206,7 @@ export default function Profile() {
           </div>
         )}
 
-        {/* ── INTERVIEW HISTORY ── */}
-        <div className="prof-section">
-          <div className="prof-section-title">Interview History</div>
-          {history.length === 0 ? (
-            <div className="prof-empty">
-              No sessions yet.
-              <button className="prof-start-btn" onClick={() => navigate("/interview")}>
-                Start Your First Interview →
-              </button>
-            </div>
-          ) : (
-            <div className="prof-history">
-              {history.map((h, i) => (
-                <div className="prof-history-card" key={h.id}>
-                  <div className="prof-hcard-top">
-                    <div className="prof-hcard-num">Session #{history.length - i}</div>
-                    <div className="prof-hcard-date">
-                      {h.created_at ? new Date(h.created_at).toLocaleDateString("en-IN", {
-                        day: "numeric", month: "short", year: "numeric"
-                      }) : "—"}
-                    </div>
-                    <div className="prof-hcard-overall" style={{color: SCORE_COLOR(h.overall)}}>
-                      {h.overall}/10
-                    </div>
-                  </div>
-
-                  {/* Score bars */}
-                  <div className="prof-scores">
-                    {[
-                      ["Communication", h.communication],
-                      ["Confidence",    h.confidence],
-                      ["Technical",     h.technical],
-                      ["Grammar",       h.grammar],
-                    ].map(([label, val]) => (
-                      <div className="prof-score-row" key={label}>
-                        <span className="prof-score-label">{label}</span>
-                        <div className="prof-score-bar-track">
-                          <div className="prof-score-bar-fill"
-                            style={{ width: `${(val||0)*10}%`, background: SCORE_COLOR(val||0) }} />
-                        </div>
-                        <span className="prof-score-val" style={{color: SCORE_COLOR(val||0)}}>{val}/10</span>
-                      </div>
-                    ))}
-                  </div>
-
-                  {h.summary && (
-                    <p className="prof-hcard-summary">{h.summary}</p>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        
 
       </div>
     </div>

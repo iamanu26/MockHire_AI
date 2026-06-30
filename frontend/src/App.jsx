@@ -16,6 +16,7 @@ import How_it_works from "./pages/How_it_works";
 import Resources from "./pages/Resources";
 import Dsapractice from "./pages/Dsapractice";
 import Profile from "./pages/Profile";
+import History from "./pages/History";
 
 // ── New auth pages ──────────────────────────────────────────────
 import ForgotPassword from "./pages/ForgotPassword";
@@ -65,6 +66,15 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/history"
+            element={
+              <ProtectedRoute>
+                <History />
+              </ProtectedRoute>
+            }
+          />
+
           <Route
             path="/dsa-practice"
             element={
