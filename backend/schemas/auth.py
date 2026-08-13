@@ -1,4 +1,7 @@
+# schemas/auth.py — Pydantic request/response models for auth
+# SOLID: SRP — only data validation shapes, no business logic
 from pydantic import BaseModel, EmailStr, field_validator
+
 
 class RegisterRequest(BaseModel):
     name:     str
@@ -17,12 +20,15 @@ class RegisterRequest(BaseModel):
             raise ValueError("Password must be at least 8 characters.")
         return v
 
+
 class LoginRequest(BaseModel):
     email:    EmailStr
     password: str
 
+
 class ForgotPasswordRequest(BaseModel):
     email: EmailStr
+
 
 class ResetPasswordRequest(BaseModel):
     token:        str
@@ -33,3 +39,16 @@ class ResetPasswordRequest(BaseModel):
         if len(v) < 8:
             raise ValueError("Password must be at least 8 characters.")
         return v
+
+
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type:   str
+    user:         dict
+
+
+class UserResponse(BaseModel):
+    id:         int
+    name:       str
+    email:      str
+    avatar_url: str | None = None
