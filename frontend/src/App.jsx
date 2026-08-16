@@ -18,6 +18,9 @@ import Dsapractice from "./pages/Dsapractice";
 import Profile from "./pages/Profile";
 import History from "./pages/History";
 
+// ── Guest Interview page ────────────────────────────────────────
+import GuestInterview from "./pages/GuestInterview";
+
 // ── New auth pages ──────────────────────────────────────────────
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
@@ -40,6 +43,9 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/feedback" element={<Feedback />} />
+
+          {/* ── Guest flow ── */}
+          <Route path="/guest-interview" element={<GuestInterview />} />
 
           {/* ── Auth flow ── */}
           <Route path="/forgot-password" element={<ForgotPassword />} />
