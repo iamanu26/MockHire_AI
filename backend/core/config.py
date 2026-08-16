@@ -25,7 +25,7 @@ class Settings:
     GROQ_API_KEY: str  = os.getenv("GROQ_API_KEY", "")
     GROQ_URL: str      = "https://api.groq.com/openai/v1/chat/completions"
     GROQ_MODEL: str    = "llama-3.1-8b-instant"
-    GROQ_TIMEOUT: int  = 30
+    GROQ_TIMEOUT: int  = 120
 
     HF_API_KEY: str    = os.getenv("HF_API_KEY", "")
     TTS_API: str       = "https://router.huggingface.co/hf-inference/models/coqui/XTTS-v2"
