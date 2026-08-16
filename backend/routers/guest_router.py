@@ -6,19 +6,34 @@ import os, json, base64, re
 from datetime import datetime
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from jose import jwt, JWTError
+from jose import jwt, JWTError, ExpiredSignatureError
 
 router = APIRouter(prefix="/guest", tags=["Guest"])
 
-SHARED_SECRET = os.getenv("MOCKHIRE_SHARED_SECRET", "change-this-shared-secret")
-ALGORITHM     = "HS256"
+ALGORITHM = "HS256"
+
+
+def get_shared_secret() -> str:
+    """
+    Read lazily (not as a module-level constant) so it always reflects the
+    current env var — avoids the import-order bug where a value set via
+    load_dotenv() after this module is imported would be missed.
+    .strip() guards against a trailing newline/space some hosting
+    dashboards inject into env vars.
+    """
+    return os.getenv("MOCKHIRE_SHARED_SECRET", "change-this-shared-secret").strip()
 
 
 def verify_guest_token(token: str) -> dict:
+    secret = get_shared_secret()
     try:
-        payload = jwt.decode(token, SHARED_SECRET, algorithms=[ALGORITHM])
-    except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid or expired guest token.")
+        # leeway=30 tolerates small clock drift between the Node and Python hosts
+        payload = jwt.decode(token, secret, algorithms=[ALGORITHM], options={"leeway": 30})
+    except ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Guest token expired. Please start a new interview from your dashboard.")
+    except JWTError as e:
+        raise HTTPException(status_code=401, detail=f"Invalid guest token: {str(e)}")
+
     if not payload.get("guest"):
         raise HTTPException(status_code=401, detail="Not a valid guest token.")
     return payload
