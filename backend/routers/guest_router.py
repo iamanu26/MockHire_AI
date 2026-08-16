@@ -132,5 +132,5 @@ def guest_complete(body: CompleteRequest):
     redirect_to = f"{return_url}?data={encoded}"
     return {"redirect_url": redirect_to}
 
-import hashlib
+
 
