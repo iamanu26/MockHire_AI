@@ -131,3 +131,10 @@ def guest_complete(body: CompleteRequest):
     # Return the full redirect URL to Project A
     redirect_to = f"{return_url}?data={encoded}"
     return {"redirect_url": redirect_to}
+
+import hashlib
+
+@router.get("/_debug_secret")
+def debug_secret():
+    s = get_shared_secret()
+    return {"sha256_prefix": hashlib.sha256(s.encode()).hexdigest()[:12], "length": len(s)}
