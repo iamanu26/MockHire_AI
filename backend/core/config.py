@@ -24,7 +24,7 @@ class Settings:
     # ── AI / LLM ────────────────────────────────────────────────
     GROQ_API_KEY: str  = os.getenv("GROQ_API_KEY", "")
     GROQ_URL: str      = "https://api.groq.com/openai/v1/chat/completions"
-    GROQ_MODEL: str    = "llama-3.3-70b-versatile"
+    GROQ_MODEL: str    = "openai/gpt-oss-120b" 
     GROQ_TIMEOUT: int  = 120
 
     HF_API_KEY: str    = os.getenv("HF_API_KEY", "")
