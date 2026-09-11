@@ -16,44 +16,39 @@ class BaseInterviewAgent(ABC):
     )
 
     def __init__(self, llm: BaseLLMClient):
-        self.llm:            BaseLLMClient        = llm
-        self.history:        List[Dict[str, str]] = []
-        self.resume_context: Optional[Dict]       = None
-        self._guard:         BaseGuard            = build_interview_guard()
+        self.llm:    BaseLLMClient = llm
+        self._guard: BaseGuard     = build_interview_guard()
 
     @abstractmethod
     def get_system_prompt(self) -> str:
         pass
 
-    def ask(self, user_answer: str) -> str:
+    def ask(
+        self,
+        user_answer: str,
+        history: Optional[List[Dict[str, str]]] = None,
+        resume_context: Optional[Dict] = None,
+    ) -> str:
         if self._guard.check(user_answer):
-            self._record(user_answer, self.INJECTION_REJECTION)
             return self.INJECTION_REJECTION
 
         system = self.get_system_prompt()
-        if self.resume_context:
-            system += self._build_resume_section(self.resume_context)
+        if resume_context:
+            system += self._build_resume_section(resume_context)
 
         messages = [{"role": "system", "content": system}]
-        messages.extend(self.history)
+        if history:
+            messages.extend(history)
         messages.append({"role": "user", "content": user_answer})
 
         reply = self.llm.complete(messages, max_tokens=256)
-        self._record(user_answer, reply)
         return reply
 
-    def reset(self, resume_context: Optional[Dict] = None):
-        self.history        = []
-        self.resume_context = resume_context
-
-    def get_history(self) -> List[Dict[str, str]]:
-        return self.history
-
-    def _generate_feedback_prompt(self) -> str:
+    def generate_feedback_prompt(self, history: List[Dict[str, str]]) -> str:
         """Send transcript to LLM and return raw feedback JSON string."""
-        num_exchanges = len(self.history) // 2
+        num_exchanges = len(history) // 2
         formatted     = ""
-        for msg in self.history:
+        for msg in history:
             label      = "Interviewer" if msg["role"] == "assistant" else "Candidate"
             formatted += f"{label}: {msg['content']}\n\n"
 
@@ -91,9 +86,9 @@ Respond ONLY with valid JSON, no markdown:
             max_tokens=512,
         )
 
-    def _record(self, user_answer: str, reply: str):
-        self.history.append({"role": "user",      "content": user_answer})
-        self.history.append({"role": "assistant",  "content": reply})
+    # Legacy alias for backward compatibility
+    def _generate_feedback_prompt(self, history: Optional[List[Dict[str, str]]] = None) -> str:
+        return self.generate_feedback_prompt(history or [])
 
     @staticmethod
     def _build_resume_section(ctx: Dict) -> str:

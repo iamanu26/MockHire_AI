@@ -81,6 +81,31 @@ export function useProctoring() {
 
   // ── Start proctoring ─────────────────────────────────────────
   const startProctoring = useCallback(async () => {
+    // 0. Release any previously active camera or screen tracks
+    if (cameraStreamRef.current) {
+      cameraStreamRef.current.getTracks().forEach(t => t.stop());
+      cameraStreamRef.current = null;
+    }
+    if (screenStreamRef.current) {
+      screenStreamRef.current.getTracks().forEach(t => t.stop());
+      screenStreamRef.current = null;
+    }
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+    clearInterval(intervalRef.current);
+
+    // Reset violations for new session
+    setViolations([]);
+    setWarning(null);
+    violationCountRef.current = {
+      no_face:       0,
+      multiple_faces: 0,
+      looking_away:  0,
+      tab_switch:    0,
+      screen_share_stopped: 0,
+    };
+
     setStatus("requesting");
     try {
       // 1. Request camera
@@ -113,6 +138,7 @@ export function useProctoring() {
 
       setStatus("active");
       startDetectionLoop();
+      return true;
 
     } catch (err) {
       console.error("Proctoring setup failed:", err);
@@ -123,8 +149,9 @@ export function useProctoring() {
         setStatus("error");
         setWarning("Could not start proctoring. Please allow camera and screen access.");
       }
+      return false;
     }
-  }, [modelsReady]);
+  }, [modelsReady, logViolation]);
 
   // ── Face detection loop ───────────────────────────────────────
   const startDetectionLoop = useCallback(() => {

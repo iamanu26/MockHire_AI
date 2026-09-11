@@ -11,8 +11,9 @@ from core.config import settings
 from core.database import Base, engine
 
 # ── Import all models so SQLAlchemy creates tables ────────────────
-from models.user import User                        # noqa: F401
-from models.interview_result import InterviewResult # noqa: F401
+from models.user import User                            # noqa: F401
+from models.interview_result import InterviewResult     # noqa: F401
+from models.interview_session import InterviewSession   # noqa: F401
 
 # ── Import routers ────────────────────────────────────────────────
 from routers.auth_router      import router as auth_router
@@ -22,9 +23,6 @@ from routers.profile_router   import router as profile_router
 from routers.resume_router    import router as resume_router
 from routers.resources_router import router as resources_router
 
-# ── Guest router ────────────────────────────────────────────────
-from routers.guest_router import router as guest_router
-
 
 # ── App setup ─────────────────────────────────────────────────────
 limiter = Limiter(key_func=get_remote_address)
@@ -32,7 +30,6 @@ app     = FastAPI(title="MockHire AI API", version="2.0.0")
 
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
-app.include_router(guest_router)
 
 # ── Create DB tables ──────────────────────────────────────────────
 Base.metadata.create_all(bind=engine)

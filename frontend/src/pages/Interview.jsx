@@ -45,11 +45,13 @@ export default function Interview() {
   const [countdown,      setCountdown]      = useState(null);
   const [reaskCount,     setReaskCount]     = useState(0);
   const [isEnding,       setIsEnding]       = useState(false);
+  const [sessionId,      setSessionId]      = useState(() => sessionStorage.getItem("interviewSessionId") || "");
 
   const recognitionRef  = useRef(null);
   const countdownRef    = useRef(null);
   const silenceTimerRef = useRef(null);
   const currentQuestion = useRef("Welcome! Please introduce yourself.");
+  const sessionIdRef    = useRef(sessionStorage.getItem("interviewSessionId") || "");
   const navigate        = useNavigate();
 
   // ── Proctoring hook ────────────────────────────────────────────
@@ -115,15 +117,24 @@ export default function Interview() {
 
   // ── Start interview ────────────────────────────────────────────
   const startInterview = async () => {
-    const token = localStorage.getItem("token");
-    await fetch(`${BASE_URL}/interview/start`, {
-      method:  "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-      body:    JSON.stringify(resumeData || {}),
-    }).catch(() => {});
+    // ── Request camera & screen share permissions ────────────────
+    const ok = await startProctoring();
+    if (ok === false) return;
 
-    // ── Start proctoring when interview begins ─────────────────
-    startProctoring();
+    const token = localStorage.getItem("token");
+    try {
+      const res = await fetch(`${BASE_URL}/interview/start?interview_type=${type}`, {
+        method:  "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body:    JSON.stringify(resumeData || {}),
+      });
+      const data = await res.json();
+      if (data?.session_id) {
+        setSessionId(data.session_id);
+        sessionIdRef.current = data.session_id;
+        sessionStorage.setItem("interviewSessionId", data.session_id);
+      }
+    } catch {}
 
     setPhase("interview");
     setTimeout(() => beginCountdown(), 800);
@@ -232,8 +243,17 @@ export default function Interview() {
     const endpoint = type === "tech"
       ? `${BASE_URL}/interview/tech`
       : `${BASE_URL}/interview/hr`;
+    const sId = sessionIdRef.current || sessionId;
+    const url = sId
+      ? `${endpoint}?answer=${encodeURIComponent(userAnswer)}&session_id=${encodeURIComponent(sId)}`
+      : `${endpoint}?answer=${encodeURIComponent(userAnswer)}`;
     try {
-      const res  = await fetch(`${endpoint}?answer=${encodeURIComponent(userAnswer)}`, { method: "POST" });
+      const token = localStorage.getItem("token");
+      const headers = {};
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+      if (sId) headers["X-Session-ID"] = sId;
+
+      const res  = await fetch(url, { method: "POST", headers });
       const data = await res.json();
       setQuestion(data.question);
       currentQuestion.current = data.question;
@@ -245,7 +265,7 @@ export default function Interview() {
     setLoading(false);
   };
 
-  const restartInterview = () => {
+  const restartInterview = async () => {
     clearInterval(countdownRef.current);
     clearTimeout(silenceTimerRef.current);
     speechSynthesis.cancel();
@@ -260,12 +280,28 @@ export default function Interview() {
     setQuestion("Welcome! Please introduce yourself.");
     setQuestionKey(k => k + 1);
     setLoading(false);
+
+    // ── Request fresh camera & screen share permissions on restart ─
+    const ok = await startProctoring();
+    if (ok === false) {
+      setStatus("Camera/Screen share required");
+      return;
+    }
+
     const token = localStorage.getItem("token");
-    fetch(`${BASE_URL}/interview/start`, {
-      method:  "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-      body:    JSON.stringify(resumeData || {}),
-    }).catch(() => {});
+    try {
+      const res = await fetch(`${BASE_URL}/interview/start?interview_type=${type}`, {
+        method:  "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body:    JSON.stringify(resumeData || {}),
+      });
+      const data = await res.json();
+      if (data?.session_id) {
+        setSessionId(data.session_id);
+        sessionIdRef.current = data.session_id;
+        sessionStorage.setItem("interviewSessionId", data.session_id);
+      }
+    } catch {}
     setTimeout(() => beginCountdown(), 800);
   };
 
@@ -305,21 +341,31 @@ export default function Interview() {
 
     try {
       const token = localStorage.getItem("token");
+      const sId = sessionIdRef.current || sessionId;
+      const headers = { Authorization: `Bearer ${token}` };
+      if (sId) headers["X-Session-ID"] = sId;
 
-      await fetch(`${BASE_URL}/interview/stop`, {
+      const stopUrl = sId
+        ? `${BASE_URL}/interview/stop?session_id=${encodeURIComponent(sId)}`
+        : `${BASE_URL}/interview/stop`;
+      await fetch(stopUrl, {
         method:  "POST",
-        headers: { Authorization: `Bearer ${token}` },
-      });
+        headers,
+      }).catch(() => {});
 
       // ── Fetch feedback here and store → Feedback.jsx reads it ─
-      const feedbackRes = await fetch(`${BASE_URL}/interview/feedback`, {
+      const feedbackUrl = sId
+        ? `${BASE_URL}/interview/feedback?session_id=${encodeURIComponent(sId)}`
+        : `${BASE_URL}/interview/feedback`;
+      const feedbackRes = await fetch(feedbackUrl, {
         method:  "POST",
-        headers: { Authorization: `Bearer ${token}` },
+        headers,
       });
 
       if (feedbackRes.ok) {
         const feedbackData = await feedbackRes.json();
         sessionStorage.setItem("lastFeedback", JSON.stringify(feedbackData.feedback));
+        sessionStorage.removeItem("interviewSessionId");
         navigate("/feedback");
       } else {
         setStatus("Error generating report. Try again.");

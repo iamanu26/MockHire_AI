@@ -18,7 +18,6 @@ import Resources      from "./pages/Resources";
 import Dsapractice    from "./pages/Dsapractice";
 import Profile        from "./pages/Profile";
 import History        from "./pages/History";
-import GuestInterview from "./pages/GuestInterview";
 
 // ── Auth flow pages ─────────────────────────────────────────────
 import ForgotPassword      from "./pages/ForgotPassword";
@@ -42,9 +41,6 @@ function App() {
           <Route path="/login"        element={<Login />} />
           <Route path="/register"     element={<Register />} />
           <Route path="/feedback"     element={<Feedback />} />
-
-          {/* ── Guest interview (no login required) ───────────── */}
-          <Route path="/guest-interview" element={<GuestInterview />} />
 
           {/* ── Auth flow ─────────────────────────────────────── */}
           <Route path="/forgot-password"     element={<ForgotPassword />} />

@@ -1,11 +1,14 @@
 # services/interview_service.py — Interview session business logic
 # SOLID: SRP — interview session management only
-# SOLID: DIP — depends on BaseInterviewAgent and InterviewRepository abstractions
+# SOLID: DIP — depends on BaseInterviewAgent, InterviewRepository, and SessionRepository abstractions
 import json, re
+from typing import Optional
 from fastapi import HTTPException
 from agents.base_agent import BaseInterviewAgent
 from repositories.interview_repository import InterviewRepository
+from repositories.session_repository import SessionRepository
 from models.interview_result import InterviewResult
+from models.interview_session import InterviewSession
 from schemas.interview import ResumeContext
 
 
@@ -13,42 +16,133 @@ class InterviewService:
     """
     Manages interview sessions: starting, asking, stopping, feedback generation.
     Routes call this — they know nothing about agents or DB directly.
+    Session state is persisted in DB to prevent cross-user data leakage.
     """
 
     def __init__(
         self,
-        tech_agent:  BaseInterviewAgent,
-        hr_agent:    BaseInterviewAgent,
+        tech_agent:     BaseInterviewAgent,
+        hr_agent:       BaseInterviewAgent,
         interview_repo: InterviewRepository,
+        session_repo:   SessionRepository,
     ):
         self.tech_agent     = tech_agent
         self.hr_agent       = hr_agent
         self.interview_repo = interview_repo
+        self.session_repo   = session_repo
 
-    def start_session(self, resume: ResumeContext) -> dict:
-        """Reset both agents and inject resume context."""
+    def _resolve_session(
+        self,
+        user_id: int,
+        session_id: Optional[str] = None,
+        interview_type: str = "tech",
+    ) -> InterviewSession:
+        session = None
+        if session_id:
+            session = self.session_repo.find_by_id(session_id)
+            if session and session.user_id and session.user_id != user_id:
+                raise HTTPException(status_code=403, detail="Unauthorized access to interview session.")
+
+        if not session:
+            session = self.session_repo.find_latest_active_by_user_id(user_id)
+
+        if not session:
+            session = self.session_repo.create_session(
+                user_id=user_id,
+                interview_type=interview_type,
+            )
+        return session
+
+    def start_session(
+        self,
+        resume: ResumeContext,
+        user_id: int,
+        interview_type: str = "tech",
+    ) -> dict:
+        """Create an isolated session in the DB for the authenticated user."""
         ctx = resume.dict() if any([
             resume.name, resume.skills, resume.projects, resume.summary
         ]) else None
-        self.tech_agent.reset(ctx)
-        self.hr_agent.reset(ctx)
-        return {"message": "Session started", "has_resume": ctx is not None}
 
-    def ask_tech(self, answer: str) -> str:
-        return self.tech_agent.ask(answer)
+        session = self.session_repo.create_session(
+            user_id=user_id,
+            interview_type=interview_type,
+            resume_context=ctx,
+        )
+        return {
+            "message": "Session started",
+            "session_id": session.id,
+            "has_resume": ctx is not None,
+        }
 
-    def ask_hr(self, answer: str) -> str:
-        return self.hr_agent.ask(answer)
+    def ask_tech(
+        self,
+        answer: str,
+        user_id: int,
+        session_id: Optional[str] = None,
+    ) -> str:
+        session = self._resolve_session(user_id=user_id, session_id=session_id, interview_type="tech")
+        reply = self.tech_agent.ask(
+            user_answer=answer,
+            history=session.history or [],
+            resume_context=session.resume_context,
+        )
+        self.session_repo.append_exchange(session, user_message=answer, assistant_message=reply)
+        return reply
 
-    def generate_feedback(self, user_id: int) -> dict:
-        """Generate AI feedback, parse scores, save to DB, return result."""
-        # Use whichever agent has history
-        agent = self.tech_agent if self.tech_agent.history else self.hr_agent
-        if not agent.history:
+    def ask_hr(
+        self,
+        answer: str,
+        user_id: int,
+        session_id: Optional[str] = None,
+    ) -> str:
+        session = self._resolve_session(user_id=user_id, session_id=session_id, interview_type="hr")
+        reply = self.hr_agent.ask(
+            user_answer=answer,
+            history=session.history or [],
+            resume_context=session.resume_context,
+        )
+        self.session_repo.append_exchange(session, user_message=answer, assistant_message=reply)
+        return reply
+
+    def stop_session(
+        self,
+        user_id: int,
+        session_id: Optional[str] = None,
+    ) -> dict:
+        session = None
+        if session_id:
+            session = self.session_repo.find_by_id(session_id)
+            if session and session.user_id and session.user_id != user_id:
+                raise HTTPException(status_code=403, detail="Unauthorized access to interview session.")
+        elif user_id:
+            session = self.session_repo.find_latest_active_by_user_id(user_id)
+
+        if session:
+            self.session_repo.update_status(session, "stopped")
+        return {"message": "Interview stopped"}
+
+    def generate_feedback(
+        self,
+        user_id: int,
+        session_id: Optional[str] = None,
+    ) -> dict:
+        """Generate AI feedback for the user's specific interview session."""
+        session = None
+        if session_id:
+            session = self.session_repo.find_by_id(session_id)
+            if session and session.user_id and session.user_id != user_id:
+                raise HTTPException(status_code=403, detail="Unauthorized access to interview session.")
+
+        if not session and user_id:
+            session = self.session_repo.find_latest_active_by_user_id(user_id)
+
+        if not session or not session.history:
             raise HTTPException(status_code=400, detail="No interview session found.")
 
-        raw      = agent._generate_feedback_prompt()
-        cleaned  = re.sub(r"```(?:json)?", "", raw).strip().rstrip("```").strip()
+        agent = self.tech_agent if session.interview_type == "tech" else self.hr_agent
+        raw = agent.generate_feedback_prompt(session.history)
+        cleaned = re.sub(r"```(?:json)?", "", raw).strip().rstrip("```").strip()
 
         try:
             feedback = json.loads(cleaned)
@@ -66,9 +160,8 @@ class InterviewService:
         )
         saved = self.interview_repo.save(result)
 
-        # Clear history after saving
-        self.tech_agent.reset()
-        self.hr_agent.reset()
+        # Mark session completed
+        self.session_repo.update_status(session, "completed")
 
         return {
             "communication": saved.communication,

@@ -68,24 +68,11 @@ Keep responses concise but thorough. Use bullet points for lists. Use bold (**te
       }]);
     } catch (err) {
       if (err.name === "AbortError") return;
-      // Fallback: use the backend's LLaMA directly
-      try {
-        const res2 = await fetch(`${BASE_URL}/interview/hr?answer=${encodeURIComponent(
-          `[INTERVIEW COACH MODE] User question: ${userText}. Give a direct, helpful answer as an interview coach.`
-        )}`, { method: "POST" });
-        const d2   = await res2.json();
-        setMessages(prev => [...prev, {
-          role:    "assistant",
-          content: d2.question || "I'm having trouble connecting right now. Please try again.",
-          id:      Date.now() + 1,
-        }]);
-      } catch {
-        setMessages(prev => [...prev, {
-          role:    "assistant",
-          content: "I'm having trouble connecting right now. Please check your connection and try again.",
-          id:      Date.now() + 1,
-        }]);
-      }
+      setMessages(prev => [...prev, {
+        role:    "assistant",
+        content: "I'm having trouble connecting to the interview coach right now. Please check your connection and try again.",
+        id:      Date.now() + 1,
+      }]);
     }
     setLoading(false);
     setTimeout(() => inputRef.current?.focus(), 100);
