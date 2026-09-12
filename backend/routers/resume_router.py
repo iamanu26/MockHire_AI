@@ -14,7 +14,12 @@ def _clean_json(text: str) -> dict:
     text  = re.sub(r"```(?:json)?", "", text).strip("` \n")
     match = re.search(r"\{[\s\S]*\}", text)
     raw   = match.group(0) if match else text
-    return json.loads(raw)
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError:
+        # Strip trailing commas if model generated any invalid syntax
+        raw = re.sub(r",\s*([\]}])", r"\1", raw)
+        return json.loads(raw)
 
 
 def _extract_pdf_text(file_bytes: bytes) -> str:
@@ -53,7 +58,8 @@ Extract up to 8 skills and 4 projects. Use empty string/array if not found."""
         raw  = default_llm.complete([
             {"role": "system", "content": "Extract resume data. Output only valid JSON."},
             {"role": "user",   "content": prompt},
-        ], max_tokens=1000)
+        ], max_tokens=2500)
         return _clean_json(raw)
     except Exception as e:
+        print(f"[ResumeExtract] AI extraction error: {e}")
         raise HTTPException(status_code=500, detail=f"AI extraction failed: {e}")
