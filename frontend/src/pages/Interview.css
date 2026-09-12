@@ -327,12 +327,82 @@
   border-radius: 14px;
   text-align: center;
   animation: fadeSlideUp 0.4s ease both;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
 }
 .iv-ended-banner p {
   color: #fca5a5;
   font-family: 'DM Mono', monospace;
   font-size: 13px;
   letter-spacing: 2px;
+}
+.iv-return-btn {
+  background: #c8f135;
+  color: #080b12;
+  font-family: 'Syne', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 10px 22px;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.iv-return-btn:hover {
+  background: #d4f54e;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(200, 241, 53, 0.35);
+}
+
+/* Active lock bar during interview */
+.iv-active-lock-bar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 28px;
+  animation: fadeSlideUp 0.5s ease both;
+}
+.iv-active-lock-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 22px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(200, 241, 53, 0.35);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+.iv-active-pulse-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #c8f135;
+  box-shadow: 0 0 10px #c8f135;
+  animation: pulse-ring 2s infinite;
+}
+.iv-active-lock-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #f8fafc;
+}
+.iv-active-lock-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  background: rgba(200, 241, 53, 0.15);
+  color: #c8f135;
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(200, 241, 53, 0.3);
+}
+.iv-active-lock-notice {
+  font-size: 12px;
+  color: #94a3b8;
+  font-family: 'DM Mono', monospace;
+  text-align: center;
 }
 
 /* DSA tab special style */

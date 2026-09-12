@@ -38,6 +38,7 @@ class GroqLLMClient(BaseLLMClient):
             "stream":      False,
         }
 
+        print(f"[Groq] Calling Groq API with model: {settings.GROQ_MODEL}")
         try:
             response = requests.post(
                 settings.GROQ_URL,

@@ -22,10 +22,16 @@ class Settings:
     RESET_TOKEN_EXPIRE_MINUTES: int  = 15
 
     # ── AI / LLM ────────────────────────────────────────────────
-    GROQ_API_KEY: str  = os.getenv("GROQ_API_KEY", "")
-    GROQ_URL: str      = "https://api.groq.com/openai/v1/chat/completions"
-    GROQ_MODEL: str    = "openai/gpt-oss-20b" 
-    GROQ_TIMEOUT: int  = 120
+    LLM_PROVIDER: str    = os.getenv("LLM_PROVIDER", "gemini")
+
+    GEMINI_API_KEY: str  = os.getenv("GEMINI_API_KEY", "")
+    GEMINI_MODEL: str    = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
+    GEMINI_TIMEOUT: int  = 60
+
+    GROQ_API_KEY: str    = os.getenv("GROQ_API_KEY", "")
+    GROQ_URL: str        = "https://api.groq.com/openai/v1/chat/completions"
+    GROQ_MODEL: str      = "openai/gpt-oss-20b"
+    GROQ_TIMEOUT: int    = 120
 
     HF_API_KEY: str    = os.getenv("HF_API_KEY", "")
     TTS_API: str       = "https://router.huggingface.co/hf-inference/models/coqui/XTTS-v2"

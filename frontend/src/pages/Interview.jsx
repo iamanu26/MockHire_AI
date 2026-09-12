@@ -368,25 +368,41 @@ export default function Interview() {
         sessionStorage.removeItem("interviewSessionId");
         navigate("/feedback");
       } else {
-        setStatus("Error generating report. Try again.");
+        const err = await feedbackRes.json().catch(() => ({}));
+        setStatus(err.detail || "Session ended. No interview answers were recorded.");
         setIsEnding(false);
         setInterviewState("ended");
       }
     } catch {
-      setStatus("Error generating report. Try again.");
+      setStatus("Session ended.");
       setIsEnding(false);
       setInterviewState("ended");
     }
   };
 
-  // ── Cleanup on unmount ─────────────────────────────────────────
+  // ── Cleanup on unmount: stop all hardware streams, speech, & timers ──
   useEffect(() => {
     return () => {
+      stopProctoring();
       clearInterval(countdownRef.current);
       clearTimeout(silenceTimerRef.current);
       speechSynthesis.cancel();
+      recognitionRef.current?.abort();
     };
-  }, []);
+  }, [stopProctoring]);
+
+  // ── Warn if user tries to leave or refresh during active interview ──
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (phase === "interview" && interviewState !== "ended") {
+        e.preventDefault();
+        e.returnValue = "An interview is currently in progress. If you leave, your interview will be terminated.";
+        return e.returnValue;
+      }
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [phase, interviewState]);
 
   const statusColor = {
     "Ready":               "#64748b",
@@ -571,10 +587,18 @@ export default function Interview() {
         {resumeData?.name && <div className="iv-candidate-badge">👤 {resumeData.name}</div>}
       </div>
 
-      <div className="iv-toggle">
-        <button onClick={() => setType("tech")} className={`iv-toggle-btn ${type === "tech" ? "iv-toggle-btn--active" : ""}`}>⚙️ Technical</button>
-        <button onClick={() => setType("hr")}   className={`iv-toggle-btn ${type === "hr"   ? "iv-toggle-btn--active" : ""}`}>🤝 HR</button>
-        <button onClick={() => navigate("/dsa-practice")} className="iv-toggle-btn iv-toggle-btn--dsa">🧩 DSA Practice</button>
+      {/* ── Locked Mode Banner: Cannot switch mode while interview is live ── */}
+      <div className="iv-active-lock-bar">
+        <div className="iv-active-lock-badge">
+          <span className="iv-active-pulse-dot" />
+          <span className="iv-active-lock-title">
+            {type === "tech" ? "⚙️ Technical Interview" : "🤝 HR Interview"}
+          </span>
+          <span className="iv-active-lock-tag">IN PROGRESS · LOCKED</span>
+        </div>
+        <div className="iv-active-lock-notice">
+          🔒 Interview mode is locked. Click <strong>"End Session"</strong> below to finish proctoring and switch to another mode.
+        </div>
       </div>
 
       <div key={questionKey} className="iv-question-card">
@@ -645,7 +669,23 @@ export default function Interview() {
 
       {interviewState === "ended" && !isEnding && (
         <div className="iv-ended-banner">
-          <p>✓ SESSION COMPLETE — FEEDBACK BEING GENERATED</p>
+          <p>✓ {status.toUpperCase()}</p>
+          <button
+            className="iv-return-btn"
+            onClick={() => {
+              stopProctoring();
+              setPhase("setup");
+              setInterviewState("idle");
+              setStatus("Ready");
+              setQuestion("Welcome! Please introduce yourself.");
+              setAnswer("");
+              setSessionId("");
+              sessionIdRef.current = "";
+              sessionStorage.removeItem("interviewSessionId");
+            }}
+          >
+            Start Another Interview / Choose Mode →
+          </button>
         </div>
       )}
     </div>

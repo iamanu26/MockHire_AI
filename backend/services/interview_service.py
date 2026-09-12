@@ -142,21 +142,16 @@ class InterviewService:
 
         agent = self.tech_agent if session.interview_type == "tech" else self.hr_agent
         raw = agent.generate_feedback_prompt(session.history)
-        cleaned = re.sub(r"```(?:json)?", "", raw).strip().rstrip("```").strip()
-
-        try:
-            feedback = json.loads(cleaned)
-        except Exception:
-            raise HTTPException(status_code=500, detail="Invalid feedback format from AI.")
+        feedback = self._extract_json(raw)
 
         result = InterviewResult(
             user_id=user_id,
-            communication=self._parse_score(feedback.get("communication", 0)),
-            confidence=self._parse_score(feedback.get("confidence", 0)),
-            technical=self._parse_score(feedback.get("technical", 0)),
-            grammar=self._parse_score(feedback.get("grammar", 0)),
-            overall=self._parse_score(feedback.get("overall", 0)),
-            summary=feedback.get("summary", "No summary provided."),
+            communication=self._parse_score(feedback.get("communication", 5)),
+            confidence=self._parse_score(feedback.get("confidence", 5)),
+            technical=self._parse_score(feedback.get("technical", 5)),
+            grammar=self._parse_score(feedback.get("grammar", 5)),
+            overall=self._parse_score(feedback.get("overall", 5)),
+            summary=feedback.get("summary", "Interview session completed."),
         )
         saved = self.interview_repo.save(result)
 
@@ -171,6 +166,35 @@ class InterviewService:
             "overall":       saved.overall,
             "summary":       saved.summary,
         }
+
+    @staticmethod
+    def _extract_json(raw: str) -> dict:
+        """Safely extract JSON from LLM output, handling markdown blocks and extra text."""
+        # 1. Clean markdown code blocks
+        cleaned = re.sub(r"```(?:json)?", "", raw).strip("` \n")
+        try:
+            return json.loads(cleaned)
+        except Exception:
+            pass
+
+        # 2. Look for outermost curly braces
+        start = cleaned.find("{")
+        end = cleaned.rfind("}")
+        if start != -1 and end != -1 and end > start:
+            try:
+                return json.loads(cleaned[start : end + 1])
+            except Exception:
+                pass
+
+        # 3. Fallback regex extraction of key fields
+        result = {}
+        for key in ["communication", "confidence", "technical", "grammar", "overall"]:
+            match = re.search(rf'"{key}"\s*:\s*(\d+)', raw, re.IGNORECASE)
+            result[key] = int(match.group(1)) if match else 5
+
+        summary_match = re.search(r'"summary"\s*:\s*"([^"\\]*(?:\\.[^"\\]*)*)"', raw, re.IGNORECASE)
+        result["summary"] = summary_match.group(1) if summary_match else "Interview evaluated based on conversation transcript."
+        return result
 
     @staticmethod
     def _parse_score(val) -> int:

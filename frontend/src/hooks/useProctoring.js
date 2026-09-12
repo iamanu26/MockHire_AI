@@ -202,18 +202,45 @@ export function useProctoring() {
     clearInterval(intervalRef.current);
 
     if (cameraStreamRef.current) {
-      cameraStreamRef.current.getTracks().forEach(t => t.stop());
+      try {
+        cameraStreamRef.current.getTracks().forEach(track => {
+          track.stop();
+          track.enabled = false;
+        });
+      } catch (err) {
+        console.warn("Error stopping camera track:", err);
+      }
       cameraStreamRef.current = null;
     }
+
     if (screenStreamRef.current) {
-      screenStreamRef.current.getTracks().forEach(t => t.stop());
+      try {
+        screenStreamRef.current.getTracks().forEach(track => {
+          track.stop();
+          track.enabled = false;
+        });
+      } catch (err) {
+        console.warn("Error stopping screen track:", err);
+      }
       screenStreamRef.current = null;
     }
+
     if (videoRef.current) {
-      videoRef.current.srcObject = null;
+      try {
+        videoRef.current.pause();
+        videoRef.current.srcObject = null;
+      } catch (err) {}
     }
+
     setStatus("idle");
   }, []);
+
+  // ── Unmount safety: stop all hardware streams when component unmounts ──
+  useEffect(() => {
+    return () => {
+      stopProctoring();
+    };
+  }, [stopProctoring]);
 
   // ── Get summary for feedback report ──────────────────────────
   const getProctoringReport = useCallback(() => {
