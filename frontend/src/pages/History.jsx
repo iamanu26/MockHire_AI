@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
 import "./History.css";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
@@ -8,6 +9,7 @@ const SCORE_COLOR = (s) =>
   s >= 8 ? "#4ade80" : s >= 6 ? "#c8f135" : s >= 4 ? "#f59e0b" : "#ef4444";
 
 export default function History() {
+  const { logout } = useContext(AuthContext);
   const navigate = useNavigate();
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -19,13 +21,18 @@ export default function History() {
         const res  = await fetch(`${BASE_URL}/profile/me`, {
           headers: { Authorization: `Bearer ${token}` }
         });
+        if (res.status === 401) {
+          logout();
+          navigate("/login?expired=true");
+          return;
+        }
         const json = await res.json();
         setHistory(json.history || []);
       } catch { /* silent */ }
       setLoading(false);
     };
     fetchHistory();
-  }, []);
+  }, [logout, navigate, token]);
 
   if (loading) return (
     <div className="hist-page">

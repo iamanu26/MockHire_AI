@@ -22,9 +22,10 @@ function Login() {
   }, []);
 
   // Read URL flags set by backend redirects
-  const justVerified  = searchParams.get("verified") === "true";
-  const invalidToken  = searchParams.get("error")    === "invalid-token";
-  const googleFailed  = searchParams.get("error")    === "google-failed";
+  const justVerified    = searchParams.get("verified") === "true";
+  const invalidToken    = searchParams.get("error")    === "invalid-token";
+  const googleFailed    = searchParams.get("error")    === "google-failed";
+  const sessionExpired  = searchParams.get("expired")  === "true";
 
   const handleLogin = async () => {
     if (!email || !password)  { setError("Please fill in all fields."); return; }
@@ -136,6 +137,11 @@ function Login() {
             {googleFailed && (
               <div className="lr-error">
                 ⚠ Google sign-in failed. Please try again.
+              </div>
+            )}
+            {sessionExpired && (
+              <div className="lr-warning">
+                ⏱ Your session has expired. Please sign in again.
               </div>
             )}
             {error && <div className="lr-error">⚠ {error}</div>}

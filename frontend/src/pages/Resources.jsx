@@ -1,4 +1,5 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
 import './Resources.css';
 
 const BASE_URL = import.meta.env.VITE_API_URL;
@@ -15,6 +16,7 @@ const SUGGESTED = [
 ];
 
 export default function Resources() {
+  const { token }   = useContext(AuthContext);
   const [messages,  setMessages]  = useState([]);
   const [input,     setInput]     = useState("");
   const [loading,   setLoading]   = useState(false);
@@ -50,13 +52,20 @@ Your tone is direct, confident, and practical — like a senior engineer mentor 
 Keep responses concise but thorough. Use bullet points for lists. Use bold (**text**) for key terms. Always end with one actionable next step the person can take immediately.`;
 
     try {
+      const activeToken = token || localStorage.getItem("token");
       const response = await fetch(`${BASE_URL}/resources/chat`, {
         method:  "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(activeToken ? { Authorization: `Bearer ${activeToken}` } : {}),
+        },
         body:    JSON.stringify({ messages: history, system: systemPrompt }),
         signal:  abortRef.current?.signal,
       });
 
+      if (response.status === 401) {
+        throw new Error("Unauthorized. Please log in to continue.");
+      }
       if (!response.ok) throw new Error("API error");
       const data = await response.json();
       const reply = data.reply || data.message || data.content || "Sorry, I couldn't generate a response.";
@@ -68,24 +77,11 @@ Keep responses concise but thorough. Use bullet points for lists. Use bold (**te
       }]);
     } catch (err) {
       if (err.name === "AbortError") return;
-      // Fallback: use the backend's LLaMA directly
-      try {
-        const res2 = await fetch(`${BASE_URL}/interview/hr?answer=${encodeURIComponent(
-          `[INTERVIEW COACH MODE] User question: ${userText}. Give a direct, helpful answer as an interview coach.`
-        )}`, { method: "POST" });
-        const d2   = await res2.json();
-        setMessages(prev => [...prev, {
-          role:    "assistant",
-          content: d2.question || "I'm having trouble connecting right now. Please try again.",
-          id:      Date.now() + 1,
-        }]);
-      } catch {
-        setMessages(prev => [...prev, {
-          role:    "assistant",
-          content: "I'm having trouble connecting right now. Please check your connection and try again.",
-          id:      Date.now() + 1,
-        }]);
-      }
+      setMessages(prev => [...prev, {
+        role:    "assistant",
+        content: err.message || "I'm having trouble connecting to the interview coach right now. Please check your connection and try again.",
+        id:      Date.now() + 1,
+      }]);
     }
     setLoading(false);
     setTimeout(() => inputRef.current?.focus(), 100);

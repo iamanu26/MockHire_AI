@@ -33,3 +33,16 @@ def get_db():
         yield db
     finally:
         db.close()
+
+
+def init_db():
+    """Create all tables and ensure schema columns exist (SRP: DB concerns isolated)."""
+    from sqlalchemy import text
+    Base.metadata.create_all(bind=engine)
+    try:
+        with engine.begin() as conn:
+            conn.execute(text("ALTER TABLE interview_sessions ADD COLUMN IF NOT EXISTS company VARCHAR(128);"))
+            conn.execute(text("ALTER TABLE interview_sessions ADD COLUMN IF NOT EXISTS role VARCHAR(128);"))
+            conn.execute(text("ALTER TABLE interview_sessions ADD COLUMN IF NOT EXISTS level VARCHAR(64);"))
+    except Exception as e:
+        print(f"[DB] Schema column notice: {e}")

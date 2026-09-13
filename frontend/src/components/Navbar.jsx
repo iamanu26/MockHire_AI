@@ -17,10 +17,17 @@ function Navbar() {
     fetch(`${BASE_URL}/auth/me`, {
       headers: { Authorization: `Bearer ${token}` }
     })
-      .then(r => r.json())
-      .then(d => setUser(d))
+      .then(r => {
+        if (r.status === 401) {
+          logout();
+          navigate("/login?expired=true");
+          return null;
+        }
+        return r.ok ? r.json() : null;
+      })
+      .then(d => { if (d) setUser(d); })
       .catch(() => { });
-  }, [token]);
+  }, [token, logout, navigate]);
 
   // Close dropdown when clicking outside
   useEffect(() => {

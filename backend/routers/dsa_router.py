@@ -11,17 +11,20 @@ from schemas.interview import DSASubmitRequest
 router = APIRouter(prefix="/dsa", tags=["DSA"])
 
 
-def _clean_json(text: str) -> str:
-    text  = re.sub(r"```(?:json)?", "", text).strip("` \n")
-    start = text.find("{")
-    if start == -1:
-        return text
-    depth = 0
-    for i, ch in enumerate(text[start:], start):
-        if ch == "{":   depth += 1
-        elif ch == "}": depth -= 1
-        if depth == 0:  return text[start:i+1]
-    return text[start:]
+def _clean_json(text: str) -> dict:
+    cleaned = re.sub(r"```(?:json)?", "", text).strip("` \n")
+    try:
+        return json.loads(cleaned)
+    except Exception:
+        pass
+    start = cleaned.find("{")
+    end = cleaned.rfind("}")
+    if start != -1 and end != -1 and end > start:
+        try:
+            return json.loads(cleaned[start : end + 1])
+        except Exception:
+            pass
+    return {}
 
 
 FALLBACKS = {
@@ -39,7 +42,10 @@ Output ONLY a JSON object. No explanation, no markdown.
         {"role": "system", "content": "Output only a raw JSON object."},
         {"role": "user",   "content": prompt},
     ], max_tokens=800)
-    return json.loads(_clean_json(raw))
+    data = _clean_json(raw)
+    if not data:
+        raise ValueError("Could not parse problem JSON")
+    return data
 
 
 @router.post("/questions")
@@ -77,7 +83,17 @@ Return ONLY valid JSON:
             {"role": "system", "content": "Strict DSA reviewer. Output only valid JSON."},
             {"role": "user",   "content": prompt},
         ], max_tokens=400)
-        data = json.loads(_clean_json(raw))
+        data = _clean_json(raw)
+        if not data:
+            data = {
+                "score": 1 if is_trivial else 5,
+                "correctness": "Needs Work" if not is_trivial else "Incomplete",
+                "time_complexity": "O(N)",
+                "space_complexity": "O(1)",
+                "is_optimal": False,
+                "feedback": "Code reviewed. Keep refining your approach.",
+                "hint": "Consider edge cases and optimal data structures."
+            }
         if is_trivial and data.get("score", 0) > 2:
             data.update({"score": 1, "correctness": "Not Attempted",
                          "feedback": "Code is too short to be a valid solution.",

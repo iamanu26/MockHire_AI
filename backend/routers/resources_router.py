@@ -1,5 +1,5 @@
-# routers/resources_router.py — AI interview coach chat endpoint
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request, Depends
+from core.security import get_current_user
 from llm.llm_factory import default_llm
 from schemas.interview import ChatRequest
 
@@ -15,7 +15,11 @@ Keep responses 150-250 words unless depth is genuinely required."""
 
 
 @router.post("/resources/chat")
-async def resources_chat(request: Request, body: ChatRequest):
+async def resources_chat(
+    request: Request,
+    body: ChatRequest,
+    current_user=Depends(get_current_user),
+):
     if not body.messages:
         raise HTTPException(status_code=400, detail="No messages provided.")
 
@@ -29,4 +33,5 @@ async def resources_chat(request: Request, body: ChatRequest):
         reply = default_llm.complete(messages, max_tokens=600)
         return {"reply": reply}
     except Exception as e:
+        print(f"[ResourcesChat] Error: {e}")
         raise HTTPException(status_code=500, detail=f"AI error: {e}")

@@ -230,6 +230,17 @@
   animation: fadeUp 0.3s ease both;
 }
 
+.lr-warning {
+  padding: 12px 16px;
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  border-radius: 4px;
+  font-size: 12px;
+  color: #fbbf24;
+  letter-spacing: 0.5px;
+  animation: fadeUp 0.3s ease both;
+}
+
 .lr-success {
   padding: 12px 16px;
   background: rgba(74,222,128,0.08);

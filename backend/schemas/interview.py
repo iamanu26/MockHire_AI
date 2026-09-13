@@ -15,6 +15,23 @@ class ResumeContext(BaseModel):
     summary:             str  = ""
 
 
+class StartSessionRequest(BaseModel):
+    company:             Optional[str]           = None
+    role:                Optional[str]           = None
+    level:               Optional[str]           = None
+    interview_type:      Optional[str]           = None
+    resume:              Optional[ResumeContext] = None
+    # Flat resume fields if passed at root level
+    name:                Optional[str]           = ""
+    years_of_experience: Optional[int]           = 0
+    current_role:        Optional[str]           = ""
+    skills:              Optional[list]          = []
+    projects:            Optional[list]          = []
+    education:           Optional[str]           = ""
+    companies:           Optional[list]          = []
+    summary:             Optional[str]           = ""
+
+
 class FeedbackResponse(BaseModel):
     communication: int
     confidence:    int

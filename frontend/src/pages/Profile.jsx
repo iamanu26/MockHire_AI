@@ -32,6 +32,16 @@ export default function Profile() {
       const res  = await fetch(`${BASE_URL}/profile/me`, {
         headers: { Authorization: `Bearer ${token}` }
       });
+      if (res.status === 401) {
+        logout();
+        navigate("/login?expired=true");
+        return;
+      }
+      if (!res.ok) {
+        setData(null);
+        setLoading(false);
+        return;
+      }
       const json = await res.json();
       setData(json);
       setForm({
@@ -47,11 +57,16 @@ export default function Profile() {
   const saveProfile = async () => {
     setSaving(true);
     try {
-      await fetch(`${BASE_URL}/profile/update`, {
+      const res = await fetch(`${BASE_URL}/profile/update`, {
         method:  "PATCH",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body:    JSON.stringify(form),
       });
+      if (res.status === 401) {
+        logout();
+        navigate("/login?expired=true");
+        return;
+      }
       setSaveMsg("Saved ✓");
       setEditing(false);
       fetchProfile();
@@ -72,6 +87,11 @@ export default function Profile() {
         headers: { Authorization: `Bearer ${token}` },
         body:    fd,
       });
+      if (res.status === 401) {
+        logout();
+        navigate("/login?expired=true");
+        return;
+      }
       const json = await res.json();
       setData(d => ({ ...d, avatar_url: json.avatar_url }));
     } catch { alert("Upload failed."); }
