@@ -5,6 +5,9 @@ import json, re
 from typing import Optional
 from fastapi import HTTPException
 from agents.base_agent import BaseInterviewAgent
+from agents.agent_factory import AgentFactory
+from llm.llm_factory import default_llm
+from core.config import settings
 from repositories.interview_repository import InterviewRepository
 from repositories.session_repository import SessionRepository
 from models.interview_result import InterviewResult
@@ -30,6 +33,26 @@ class InterviewService:
         self.hr_agent       = hr_agent
         self.interview_repo = interview_repo
         self.session_repo   = session_repo
+
+    def _get_agent(self, session: InterviewSession, default_type: str = "tech") -> BaseInterviewAgent:
+        """Dynamically build agent strategy configured for the session's company, role, and level."""
+        interview_type = session.interview_type or default_type
+        ctx = session.resume_context or {}
+        company = getattr(session, "company", None) or ctx.get("target_company") or settings.DEFAULT_COMPANY
+        role    = getattr(session, "role", None) or ctx.get("target_role") or settings.DEFAULT_ROLE
+        level   = getattr(session, "level", None) or ctx.get("target_level") or settings.DEFAULT_LEVEL
+
+        try:
+            llm_client = getattr(self.tech_agent, "llm", None) or getattr(self.hr_agent, "llm", None) or default_llm
+            return AgentFactory.create(
+                interview_type=interview_type,
+                llm=llm_client,
+                company=company,
+                role=role,
+                level=level,
+            )
+        except Exception:
+            return self.tech_agent if interview_type == "tech" else self.hr_agent
 
     def _resolve_session(
         self,
@@ -58,21 +81,40 @@ class InterviewService:
         resume: ResumeContext,
         user_id: int,
         interview_type: str = "tech",
+        company: Optional[str] = None,
+        role: Optional[str] = None,
+        level: Optional[str] = None,
     ) -> dict:
-        """Create an isolated session in the DB for the authenticated user."""
+        """Create an isolated session in the DB for the authenticated user with custom company/role/level."""
+        target_company = (company or "").strip() or settings.DEFAULT_COMPANY
+        target_role    = (role or "").strip()    or settings.DEFAULT_ROLE
+        target_level   = (level or "").strip()   or settings.DEFAULT_LEVEL
+
         ctx = resume.dict() if any([
             resume.name, resume.skills, resume.projects, resume.summary
-        ]) else None
+        ]) else {}
+
+        ctx["target_company"] = target_company
+        ctx["target_role"]    = target_role
+        ctx["target_level"]   = target_level
 
         session = self.session_repo.create_session(
             user_id=user_id,
             interview_type=interview_type,
-            resume_context=ctx,
+            company=target_company,
+            role=target_role,
+            level=target_level,
+            resume_context=ctx if ctx else None,
         )
         return {
             "message": "Session started",
             "session_id": session.id,
-            "has_resume": ctx is not None,
+            "has_resume": any([resume.name, resume.skills, resume.projects, resume.summary]),
+            "company": target_company,
+            "role": target_role,
+            "level": target_level,
+            "interview_type": interview_type,
+            "initial_message": f"Welcome! We are ready to begin your {target_company} {target_role} ({target_level} level) interview. Please introduce yourself to get started.",
         }
 
     def ask_tech(
@@ -82,7 +124,8 @@ class InterviewService:
         session_id: Optional[str] = None,
     ) -> str:
         session = self._resolve_session(user_id=user_id, session_id=session_id, interview_type="tech")
-        reply = self.tech_agent.ask(
+        agent = self._get_agent(session, default_type="tech")
+        reply = agent.ask(
             user_answer=answer,
             history=session.history or [],
             resume_context=session.resume_context,
@@ -97,7 +140,8 @@ class InterviewService:
         session_id: Optional[str] = None,
     ) -> str:
         session = self._resolve_session(user_id=user_id, session_id=session_id, interview_type="hr")
-        reply = self.hr_agent.ask(
+        agent = self._get_agent(session, default_type="hr")
+        reply = agent.ask(
             user_answer=answer,
             history=session.history or [],
             resume_context=session.resume_context,
@@ -140,7 +184,7 @@ class InterviewService:
         if not session or not session.history:
             raise HTTPException(status_code=400, detail="No interview session found.")
 
-        agent = self.tech_agent if session.interview_type == "tech" else self.hr_agent
+        agent = self._get_agent(session, session.interview_type or "tech")
         raw = agent.generate_feedback_prompt(session.history)
         feedback = self._extract_json(raw)
 

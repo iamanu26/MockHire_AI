@@ -30,10 +30,16 @@ class SessionRepository(BaseRepository[InterviewSession]):
         user_id: Optional[int] = None,
         interview_type: str = "tech",
         resume_context: Optional[Dict[str, Any]] = None,
+        company: Optional[str] = None,
+        role: Optional[str] = None,
+        level: Optional[str] = None,
     ) -> InterviewSession:
         session = InterviewSession(
             user_id=user_id,
             interview_type=interview_type,
+            company=company,
+            role=role,
+            level=level,
             resume_context=resume_context,
             history=[],
             status="in_progress",

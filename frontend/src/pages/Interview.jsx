@@ -25,6 +25,11 @@ const MAX_REASKS        = 1;
 export default function Interview() {
   const [phase, setPhase]               = useState("setup");
 
+  // ── Target Configuration state ──────────────────────────────
+  const [targetCompany, setTargetCompany] = useState("Google");
+  const [targetRole,    setTargetRole]    = useState("Software Engineer");
+  const [targetLevel,   setTargetLevel]   = useState("Intermediate");
+
   // ── Resume state ───────────────────────────────────────────────
   const [resumeData,  setResumeData]    = useState(null);
   const [uploading,   setUploading]     = useState(false);
@@ -98,6 +103,12 @@ export default function Interview() {
       setResumeData(data);
       setEditedData({ ...data });
       setExpInput(String(data.years_of_experience ?? 0));
+      if (data.current_role && (!targetRole || targetRole === "Software Engineer")) {
+        setTargetRole(data.current_role);
+      }
+      if (data.level) {
+        setTargetLevel(data.level === "Fresher" ? "Junior" : "Intermediate");
+      }
     } catch (err) {
       setUploadErr(err.message);
     }
@@ -122,17 +133,40 @@ export default function Interview() {
     if (ok === false) return;
 
     const token = localStorage.getItem("token");
+    const activeCompany = targetCompany.trim() || "Product Based";
+    const activeRole    = targetRole.trim()    || "Software Engineer";
+    const activeLevel   = targetLevel          || "Intermediate";
+
+    const payload = {
+      company: activeCompany,
+      role: activeRole,
+      level: activeLevel,
+      interview_type: type,
+      resume: resumeData || {},
+    };
+
     try {
-      const res = await fetch(`${BASE_URL}/interview/start?interview_type=${type}`, {
+      const qParams = new URLSearchParams({
+        interview_type: type,
+        company: activeCompany,
+        role: activeRole,
+        level: activeLevel,
+      });
+
+      const res = await fetch(`${BASE_URL}/interview/start?${qParams.toString()}`, {
         method:  "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body:    JSON.stringify(resumeData || {}),
+        body:    JSON.stringify(payload),
       });
       const data = await res.json();
       if (data?.session_id) {
         setSessionId(data.session_id);
         sessionIdRef.current = data.session_id;
         sessionStorage.setItem("interviewSessionId", data.session_id);
+      }
+      if (data?.initial_message) {
+        setQuestion(data.initial_message);
+        currentQuestion.current = data.initial_message;
       }
     } catch {}
 
@@ -435,7 +469,90 @@ export default function Interview() {
               <div className="iv-badge-dot" /><span>AI Interview Session</span><div className="iv-badge-dot" />
             </div>
             <h1 className="iv-title">Prepare Your Session</h1>
-            <p className="iv-setup-sub">Upload your resume for a personalized interview, or skip to start immediately.</p>
+            <p className="iv-setup-sub">Customize your target role & company or upload your resume for deep personalization.</p>
+          </div>
+
+          {/* ── Target Role, Company & Level Configuration ── */}
+          <div className="iv-target-card">
+            <div className="iv-target-card-header">
+              <div className="iv-target-title">
+                <span className="iv-target-icon">🎯</span> Target Interview Configuration
+              </div>
+              <span className="iv-target-sub">Controls AI persona, question depth & evaluation rubric</span>
+            </div>
+
+            <div className="iv-target-grid">
+              {/* Target Company */}
+              <div className="iv-target-field">
+                <label>Target Company</label>
+                <input
+                  className="iv-input iv-target-input"
+                  type="text"
+                  placeholder="e.g. Google, Amazon, Startup"
+                  value={targetCompany}
+                  onChange={(e) => setTargetCompany(e.target.value)}
+                />
+                <div className="iv-chips">
+                  {["Google", "Amazon", "Microsoft", "Meta", "Netflix", "Fintech Startup"].map((comp) => (
+                    <button
+                      key={comp}
+                      type="button"
+                      className={`iv-chip ${targetCompany === comp ? "iv-chip--active" : ""}`}
+                      onClick={() => setTargetCompany(comp)}
+                    >
+                      {comp}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Target Role */}
+              <div className="iv-target-field">
+                <label>Target Role / Position</label>
+                <input
+                  className="iv-input iv-target-input"
+                  type="text"
+                  placeholder="e.g. Software Engineer, Frontend Dev"
+                  value={targetRole}
+                  onChange={(e) => setTargetRole(e.target.value)}
+                />
+                <div className="iv-chips">
+                  {["Software Engineer", "Frontend Dev", "Backend Dev", "Full Stack", "DevOps / Cloud", "AI / ML Engineer"].map((r) => (
+                    <button
+                      key={r}
+                      type="button"
+                      className={`iv-chip ${targetRole === r ? "iv-chip--active" : ""}`}
+                      onClick={() => setTargetRole(r)}
+                    >
+                      {r}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Experience Level */}
+              <div className="iv-target-field iv-target-field--full">
+                <label>Experience / Seniority Level</label>
+                <div className="iv-level-selector">
+                  {[
+                    { key: "Junior", label: "Junior / Fresher", sub: "0-2 Yrs · Core Foundations & Problem Solving" },
+                    { key: "Intermediate", label: "Mid-Level", sub: "2-5 Yrs · Practical Architecture & Optimization" },
+                    { key: "Senior", label: "Senior", sub: "5+ Yrs · Scalability, Trade-offs & Deep Design" },
+                    { key: "Lead", label: "Lead / Staff", sub: "8+ Yrs · System Architecture & Leadership" },
+                  ].map((lvl) => (
+                    <button
+                      key={lvl.key}
+                      type="button"
+                      className={`iv-level-btn ${targetLevel === lvl.key ? "iv-level-btn--active" : ""}`}
+                      onClick={() => setTargetLevel(lvl.key)}
+                    >
+                      <span className="iv-level-name">{lvl.label}</span>
+                      <span className="iv-level-desc">{lvl.sub}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
 
           <div className="iv-upload-box">
@@ -584,7 +701,12 @@ export default function Interview() {
           <div className="iv-badge-dot" /><span>AI Interview Session</span><div className="iv-badge-dot" />
         </div>
         <h1 className="iv-title">Voice Interview Room</h1>
-        {resumeData?.name && <div className="iv-candidate-badge">👤 {resumeData.name}</div>}
+        <div className="iv-session-meta-bar">
+          <span className="iv-meta-tag iv-meta-company">🏢 {targetCompany || "Product Based"}</span>
+          <span className="iv-meta-tag iv-meta-role">💼 {targetRole || "Software Engineer"}</span>
+          <span className="iv-meta-tag iv-meta-level">⭐ {targetLevel || "Intermediate"}</span>
+          {resumeData?.name && <span className="iv-meta-tag iv-meta-candidate">👤 {resumeData.name}</span>}
+        </div>
       </div>
 
       {/* ── Locked Mode Banner: Cannot switch mode while interview is live ── */}

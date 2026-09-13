@@ -8,7 +8,7 @@ from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 
 from core.config import settings
-from core.database import Base, engine
+from core.database import init_db
 
 # ── Import all models so SQLAlchemy creates tables ────────────────
 from models.user import User                            # noqa: F401
@@ -31,8 +31,8 @@ app     = FastAPI(title="MockHire AI API", version="2.0.0")
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
-# ── Create DB tables ──────────────────────────────────────────────
-Base.metadata.create_all(bind=engine)
+# ── Initialize Database tables ────────────────────────────────────
+init_db()
 
 # ── CORS ──────────────────────────────────────────────────────────
 app.add_middleware(

@@ -15,13 +15,13 @@ from services.interview_service import InterviewService
 from agents.tech_agent import TechnicalInterviewAgent
 from agents.hr_agent import HRInterviewAgent
 from llm.llm_factory import default_llm
-from schemas.interview import ResumeContext
+from schemas.interview import ResumeContext, StartSessionRequest
 from core.config import settings
 from text_to_speech import text_to_speech
 
 router = APIRouter(prefix="/interview", tags=["Interview"])
 
-# ── Stateless agent strategies (shared LLM clients, NO session state stored) ──
+# ── Stateless agent strategies (fallback / legacy LLM clients) ──
 _tech_agent = TechnicalInterviewAgent(
     default_llm,
     company=settings.DEFAULT_COMPANY,
@@ -53,15 +53,43 @@ def _resolve_session_id(request: Request, session_id: Optional[str] = None) -> O
 @router.post("/start")
 def start_interview(
     request: Request,
-    resume: ResumeContext = ResumeContext(),
+    payload: Optional[StartSessionRequest] = None,
     interview_type: str = "tech",
+    company: Optional[str] = Query(None),
+    role: Optional[str] = Query(None),
+    level: Optional[str] = Query(None),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+    body_payload = payload or StartSessionRequest()
+    final_type = body_payload.interview_type or interview_type
+    final_company = company or body_payload.company or settings.DEFAULT_COMPANY
+    final_role = role or body_payload.role or settings.DEFAULT_ROLE
+    final_level = level or body_payload.level or settings.DEFAULT_LEVEL
+
+    # Resolve resume context safely
+    if body_payload.resume:
+        resume_ctx = body_payload.resume
+    else:
+        resume_ctx = ResumeContext(
+            name=body_payload.name or "",
+            level=final_level,
+            years_of_experience=body_payload.years_of_experience or 0,
+            current_role=body_payload.current_role or "",
+            skills=body_payload.skills or [],
+            projects=body_payload.projects or [],
+            education=body_payload.education or "",
+            companies=body_payload.companies or [],
+            summary=body_payload.summary or "",
+        )
+
     return _get_service(db).start_session(
-        resume,
+        resume=resume_ctx,
         user_id=current_user.id,
-        interview_type=interview_type,
+        interview_type=final_type,
+        company=final_company,
+        role=final_role,
+        level=final_level,
     )
 
 
