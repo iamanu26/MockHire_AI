@@ -34,21 +34,21 @@ class LLMFactory:
 
     @staticmethod
     def create(provider: str = None) -> BaseLLMClient:
-        chosen = (provider or settings.LLM_PROVIDER or "gemini").lower()
+        chosen = (provider or settings.LLM_PROVIDER or "groq").lower()
 
-        primary_cls = GeminiLLMClient if chosen == "gemini" else GroqLLMClient
-        fallback_cls = GroqLLMClient if chosen == "gemini" else GeminiLLMClient
+        primary_cls = GroqLLMClient if chosen == "groq" else GeminiLLMClient
+        fallback_cls = GeminiLLMClient if chosen == "groq" else GroqLLMClient
 
         # Check if fallback is available
         fallback_available = bool(
-            settings.GROQ_API_KEY if chosen == "gemini" else settings.GEMINI_API_KEY
+            settings.GEMINI_API_KEY if chosen == "groq" else settings.GROQ_API_KEY
         )
 
         primary_client = primary_cls()
         fallback_client = fallback_cls() if fallback_available else None
 
-        active_model = settings.GEMINI_MODEL if chosen == "gemini" else settings.GROQ_MODEL
-        fallback_desc = f"with fallback to {'GROQ' if chosen == 'gemini' else 'GEMINI'}" if fallback_client else "no fallback"
+        active_model = settings.GROQ_MODEL if chosen == "groq" else settings.GEMINI_MODEL
+        fallback_desc = f"with fallback to {'GEMINI' if chosen == 'groq' else 'GROQ'}" if fallback_client else "no fallback"
         print(f"[LLMFactory] Initialized provider: '{chosen.upper()}' ({active_model}) [{fallback_desc}]")
 
         return ResilientLLMClient(primary_client, fallback_client)
