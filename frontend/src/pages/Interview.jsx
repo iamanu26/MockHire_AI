@@ -47,17 +47,28 @@ export default function Interview() {
   const [interviewState, setInterviewState] = useState("idle");
   const [waveActive,     setWaveActive]     = useState(false);
   const [questionKey,    setQuestionKey]    = useState(0);
-  const [countdown,      setCountdown]      = useState(null);
-  const [reaskCount,     setReaskCount]     = useState(0);
-  const [isEnding,       setIsEnding]       = useState(false);
-  const [sessionId,      setSessionId]      = useState(() => sessionStorage.getItem("interviewSessionId") || "");
+  const [countdown,         setCountdown]         = useState(null);
+  const [reaskCount,        setReaskCount]        = useState(0);
+  const [isEnding,          setIsEnding]          = useState(false);
+  const [sessionId,         setSessionId]         = useState(() => sessionStorage.getItem("interviewSessionId") || "");
 
-  const recognitionRef  = useRef(null);
-  const countdownRef    = useRef(null);
-  const silenceTimerRef = useRef(null);
-  const currentQuestion = useRef("Welcome! Please introduce yourself.");
-  const sessionIdRef    = useRef(sessionStorage.getItem("interviewSessionId") || "");
-  const navigate        = useNavigate();
+  const INTERVIEW_TOTAL_SECONDS = 900; // 15 minutes
+  const [timeLeft,          setTimeLeft]          = useState(INTERVIEW_TOTAL_SECONDS);
+  const [interviewFinished, setInterviewFinished] = useState(false);
+
+  const recognitionRef    = useRef(null);
+  const countdownRef      = useRef(null);
+  const silenceTimerRef   = useRef(null);
+  const interviewTimerRef = useRef(null);
+  const currentQuestion   = useRef("Welcome! Please introduce yourself.");
+  const sessionIdRef      = useRef(sessionStorage.getItem("interviewSessionId") || "");
+  const navigate          = useNavigate();
+
+  const formatTime = (seconds) => {
+    const mins = Math.floor(Math.max(0, seconds) / 60);
+    const secs = Math.max(0, seconds) % 60;
+    return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
+  };
 
   // ── Proctoring hook ────────────────────────────────────────────
   const {
@@ -256,12 +267,26 @@ export default function Interview() {
       if (chosen) utterance.voice = chosen;
       utterance.onstart  = () => setStatus("Speaking...");
       utterance.onend    = () => {
+        const isClosing = /concludes our|concludes the interview|evaluation is ready|recorded and your detailed/i.test(text || "");
+        if (isClosing) {
+          setStatus("Interview Complete");
+          setInterviewFinished(true);
+          return;
+        }
         setStatus("Your turn");
         if (autoCountdown && interviewState !== "ended" && interviewState !== "paused") {
           beginCountdown();
         }
       };
-      utterance.onerror = () => setStatus("Your turn");
+      utterance.onerror = () => {
+        const isClosing = /concludes our|concludes the interview|evaluation is ready|recorded and your detailed/i.test(text || "");
+        if (isClosing) {
+          setStatus("Interview Complete");
+          setInterviewFinished(true);
+        } else {
+          setStatus("Your turn");
+        }
+      };
       speechSynthesis.speak(utterance);
     };
 
@@ -292,6 +317,12 @@ export default function Interview() {
       setQuestion(data.question);
       currentQuestion.current = data.question;
       setQuestionKey(k => k + 1);
+
+      const isClosing = /concludes our|concludes the interview|evaluation is ready|recorded and your detailed/i.test(data.question || "");
+      if (isClosing) {
+        setInterviewFinished(true);
+      }
+
       speak(data.question, true);
     } catch {
       setStatus("Your turn");
@@ -301,6 +332,7 @@ export default function Interview() {
 
   const restartInterview = async () => {
     clearInterval(countdownRef.current);
+    clearInterval(interviewTimerRef.current);
     clearTimeout(silenceTimerRef.current);
     speechSynthesis.cancel();
     recognitionRef.current?.abort();
@@ -311,6 +343,8 @@ export default function Interview() {
     setCountdown(null);
     setReaskCount(0);
     setIsEnding(false);
+    setTimeLeft(INTERVIEW_TOTAL_SECONDS);
+    setInterviewFinished(false);
     setQuestion("Welcome! Please introduce yourself.");
     setQuestionKey(k => k + 1);
     setLoading(false);
@@ -341,6 +375,7 @@ export default function Interview() {
 
   const pauseInterview = () => {
     clearInterval(countdownRef.current);
+    clearInterval(interviewTimerRef.current);
     clearTimeout(silenceTimerRef.current);
     speechSynthesis.pause();
     recognitionRef.current?.abort();
@@ -359,6 +394,7 @@ export default function Interview() {
   // ── End session: stop proctoring + get feedback + navigate ─────
   const stopInterview = async () => {
     clearInterval(countdownRef.current);
+    clearInterval(interviewTimerRef.current);
     clearTimeout(silenceTimerRef.current);
     speechSynthesis.cancel();
     recognitionRef.current?.abort();
@@ -419,11 +455,33 @@ export default function Interview() {
     return () => {
       stopProctoring();
       clearInterval(countdownRef.current);
+      clearInterval(interviewTimerRef.current);
       clearTimeout(silenceTimerRef.current);
       speechSynthesis.cancel();
       recognitionRef.current?.abort();
     };
   }, [stopProctoring]);
+
+  // ── 15-Minute Interview Timer ──
+  useEffect(() => {
+    if (phase !== "interview" || interviewState !== "running") {
+      clearInterval(interviewTimerRef.current);
+      return;
+    }
+
+    interviewTimerRef.current = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(interviewTimerRef.current);
+          stopInterview();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interviewTimerRef.current);
+  }, [phase, interviewState]);
 
   // ── Warn if user tries to leave or refresh during active interview ──
   useEffect(() => {
@@ -706,6 +764,9 @@ export default function Interview() {
           <span className="iv-meta-tag iv-meta-role">💼 {targetRole || "Software Engineer"}</span>
           <span className="iv-meta-tag iv-meta-level">⭐ {targetLevel || "Intermediate"}</span>
           {resumeData?.name && <span className="iv-meta-tag iv-meta-candidate">👤 {resumeData.name}</span>}
+          <span className={`iv-meta-tag iv-meta-timer ${timeLeft <= 120 ? "iv-meta-timer--warning" : ""}`}>
+            ⏱️ {timeLeft <= 120 ? `⚠️ ${formatTime(timeLeft)}` : formatTime(timeLeft)}
+          </span>
         </div>
       </div>
 
@@ -716,7 +777,7 @@ export default function Interview() {
           <span className="iv-active-lock-title">
             {type === "tech" ? "⚙️ Technical Interview" : "🤝 HR Interview"}
           </span>
-          <span className="iv-active-lock-tag">IN PROGRESS · LOCKED</span>
+          <span className="iv-active-lock-tag">IN PROGRESS · ⏱️ {formatTime(timeLeft)}</span>
         </div>
         <div className="iv-active-lock-notice">
           🔒 Interview mode is locked. Click <strong>"End Session"</strong> below to finish proctoring and switch to another mode.
@@ -781,6 +842,21 @@ export default function Interview() {
           }}/>
         ))}
       </div>
+
+      {interviewFinished && (
+        <div className="iv-finished-card">
+          <div className="iv-finished-header">
+            <span className="iv-finished-icon">🎉</span>
+            <div>
+              <div className="iv-finished-title">Interview Questions Concluded</div>
+              <p className="iv-finished-desc">All interview questions have been answered. Your comprehensive evaluation is ready.</p>
+            </div>
+          </div>
+          <button className="iv-finish-cta-btn" onClick={stopInterview}>
+            Generate Feedback & Evaluation Report →
+          </button>
+        </div>
+      )}
 
       <div className="iv-controls">
         <ControlBtn onClick={pauseInterview}   disabled={interviewState!=="running"} icon="⏸" label="Pause"       color="#f97316"/>

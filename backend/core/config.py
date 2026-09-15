@@ -55,6 +55,8 @@ class Settings:
     DEFAULT_COMPANY: str = "Product Based"
     DEFAULT_ROLE: str    = "Software Engineer"
     DEFAULT_LEVEL: str   = "Intermediate"
+    MAX_INTERVIEW_QUESTIONS: int    = int(os.getenv("MAX_INTERVIEW_QUESTIONS", "7"))
+    INTERVIEW_DURATION_SECONDS: int = int(os.getenv("INTERVIEW_DURATION_SECONDS", "900"))  # 15 minutes
 
 
 # Single shared instance — import this everywhere

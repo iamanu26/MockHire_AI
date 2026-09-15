@@ -125,10 +125,30 @@ class InterviewService:
     ) -> str:
         session = self._resolve_session(user_id=user_id, session_id=session_id, interview_type="tech")
         agent = self._get_agent(session, default_type="tech")
+
+        history_list = session.history or []
+        num_exchanges = len(history_list) // 2
+        max_q = settings.MAX_INTERVIEW_QUESTIONS
+
+        # If already at or past the question limit, conclude immediately
+        if num_exchanges >= max_q:
+            closing = (
+                "Thank you for your time today! That concludes our technical interview questions. "
+                "Your responses have been recorded and your detailed performance analysis is ready."
+            )
+            self.session_repo.append_exchange(session, user_message=answer, assistant_message=closing)
+            return closing
+
+        # Sliding Window: Pass only the last 6 messages (3 Q&A pairs) to LLM
+        # Keeps prompt token size small (<1000 tokens) and latency under 0.5s
+        recent_history = history_list[-6:]
+        wrap_up = (num_exchanges + 1 >= max_q)
+
         reply = agent.ask(
             user_answer=answer,
-            history=session.history or [],
+            history=recent_history,
             resume_context=session.resume_context,
+            wrap_up=wrap_up,
         )
         self.session_repo.append_exchange(session, user_message=answer, assistant_message=reply)
         return reply
@@ -141,10 +161,29 @@ class InterviewService:
     ) -> str:
         session = self._resolve_session(user_id=user_id, session_id=session_id, interview_type="hr")
         agent = self._get_agent(session, default_type="hr")
+
+        history_list = session.history or []
+        num_exchanges = len(history_list) // 2
+        max_q = settings.MAX_INTERVIEW_QUESTIONS
+
+        # If already at or past the question limit, conclude immediately
+        if num_exchanges >= max_q:
+            closing = (
+                "Thank you for your time today! That concludes our HR interview questions. "
+                "Your responses have been recorded and your detailed performance analysis is ready."
+            )
+            self.session_repo.append_exchange(session, user_message=answer, assistant_message=closing)
+            return closing
+
+        # Sliding Window: Pass only the last 6 messages (3 Q&A pairs) to LLM
+        recent_history = history_list[-6:]
+        wrap_up = (num_exchanges + 1 >= max_q)
+
         reply = agent.ask(
             user_answer=answer,
-            history=session.history or [],
+            history=recent_history,
             resume_context=session.resume_context,
+            wrap_up=wrap_up,
         )
         self.session_repo.append_exchange(session, user_message=answer, assistant_message=reply)
         return reply

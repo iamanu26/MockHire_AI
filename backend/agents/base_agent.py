@@ -28,20 +28,31 @@ class BaseInterviewAgent(ABC):
         user_answer: str,
         history: Optional[List[Dict[str, str]]] = None,
         resume_context: Optional[Dict] = None,
+        wrap_up: bool = False,
     ) -> str:
         if self._guard.check(user_answer):
             return self.INJECTION_REJECTION
 
-        system = self.get_system_prompt()
-        if resume_context:
-            system += self._build_resume_section(resume_context)
+        if wrap_up:
+            system = (
+                f"You are the senior interviewer at {getattr(self, 'company', 'the company')}.\n"
+                "CRITICAL OVERRIDING INSTRUCTION: The interview has reached its final question.\n"
+                "1. Acknowledge the candidate's final response warmly in 1 sentence.\n"
+                "2. Conclude: 'Thank you for your time and answers today! That concludes our interview questions. "
+                "Your responses have been recorded and your detailed performance evaluation is ready.'\n"
+                "3. STRICT RULE: Do NOT ask any more questions, and do NOT ask if the candidate has questions for you."
+            )
+        else:
+            system = self.get_system_prompt()
+            if resume_context:
+                system += self._build_resume_section(resume_context)
 
         messages = [{"role": "system", "content": system}]
         if history:
             messages.extend(history)
         messages.append({"role": "user", "content": user_answer})
 
-        reply = self.llm.complete(messages, max_tokens=256)
+        reply = self.llm.complete(messages, max_tokens=300)
         return reply
 
     def generate_feedback_prompt(self, history: List[Dict[str, str]]) -> str:
