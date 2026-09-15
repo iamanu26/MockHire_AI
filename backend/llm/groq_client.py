@@ -1,5 +1,6 @@
 # llm/groq_client.py — Groq API implementation of BaseLLMClient
 # Pattern: Adapter Pattern — adapts Groq API to our BaseLLMClient interface
+import re
 import requests
 from typing import List, Dict
 from llm.base_llm import BaseLLMClient
@@ -12,15 +13,14 @@ class GroqAPIError(Exception):
 
 class GroqLLMClient(BaseLLMClient):
     """
-    Concrete LLM client using Groq's API with LLaMA 3.1.
+    Concrete LLM client using Groq's API.
     All Groq-specific logic is isolated here.
-    To switch to OpenAI: implement BaseLLMClient with OpenAI SDK instead.
     """
 
     def complete(
         self,
         messages:   List[Dict[str, str]],
-        max_tokens: int = 256,
+        max_tokens: int = 512,
     ) -> str:
         if not settings.GROQ_API_KEY:
             raise GroqAPIError("GROQ_API_KEY not set in environment.")
@@ -56,4 +56,7 @@ class GroqLLMClient(BaseLLMClient):
         if "choices" not in data or not data["choices"]:
             raise GroqAPIError("Unexpected response format from Groq API")
 
-        return data["choices"][0]["message"]["content"]
+        content = data["choices"][0]["message"]["content"]
+        # Strip internal thinking tags if emitted by reasoning models (like Qwen)
+        content = re.sub(r"<think>.*?</think>", "", content, flags=re.DOTALL).strip()
+        return content

@@ -1,8 +1,11 @@
 # core/config.py — Single source of truth for all environment settings
 # SOLID: SRP — all config in one place, not scattered across files
 import os
+from pathlib import Path
 from dotenv import load_dotenv
 
+env_path = Path(__file__).resolve().parent.parent / ".env"
+load_dotenv(dotenv_path=env_path)
 load_dotenv()
 
 
@@ -22,7 +25,7 @@ class Settings:
     RESET_TOKEN_EXPIRE_MINUTES: int  = 15
 
     # ── AI / LLM ────────────────────────────────────────────────
-    LLM_PROVIDER: str    = os.getenv("LLM_PROVIDER", "gemini")
+    LLM_PROVIDER: str    = os.getenv("LLM_PROVIDER", "groq")
 
     GEMINI_API_KEY: str  = os.getenv("GEMINI_API_KEY", "")
     GEMINI_MODEL: str    = os.getenv("GEMINI_MODEL", "gemini-3.6-flash")
@@ -30,7 +33,7 @@ class Settings:
 
     GROQ_API_KEY: str    = os.getenv("GROQ_API_KEY", "")
     GROQ_URL: str        = "https://api.groq.com/openai/v1/chat/completions"
-    GROQ_MODEL: str      = "openai/gpt-oss-20b"
+    GROQ_MODEL: str      = os.getenv("GROQ_MODEL", "qwen/qwen3.8-27b")
     GROQ_TIMEOUT: int    = 120
 
     HF_API_KEY: str    = os.getenv("HF_API_KEY", "")
