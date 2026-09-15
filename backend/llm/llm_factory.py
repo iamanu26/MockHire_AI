@@ -8,18 +8,19 @@ from core.config import settings
 class ResilientLLMClient(BaseLLMClient):
     """
     Decorator pattern: wraps primary LLM and falls back to secondary
-    provider if primary fails (e.g. Gemini 429 quota exceeded).
+    provider if primary fails (e.g. Groq rate limit -> Gemini fallback).
     """
-    def __init__(self, primary: BaseLLMClient, fallback: BaseLLMClient = None):
+    def __init__(self, primary: BaseLLMClient, fallback: BaseLLMClient = None, provider: str = "groq"):
         self.primary = primary
         self.fallback = fallback
+        self.provider = provider
 
     def complete(self, messages: List[Dict[str, str]], max_tokens: int = 512) -> str:
         try:
             return self.primary.complete(messages, max_tokens)
         except Exception as primary_err:
             if self.fallback:
-                print(f"[LLM] Primary provider encountered error: {primary_err}")
+                print(f"[LLM] Primary provider ({self.provider}) encountered error: {primary_err}")
                 print("[LLM] Gracefully falling back to secondary provider...")
                 return self.fallback.complete(messages, max_tokens)
             raise primary_err
@@ -28,13 +29,28 @@ class ResilientLLMClient(BaseLLMClient):
 class LLMFactory:
     """
     Factory that returns the correct LLM client.
-    Supports Groq and Gemini, configurable via LLM_PROVIDER in .env.
-    Includes automatic failover if an alternate provider key is present.
+    Prioritizes Groq (qwen/qwen3.8-27b) when GROQ_API_KEY is present,
+    with automatic failover to Gemini if an alternate key is available.
     """
+    provider: str = "groq"
 
     @staticmethod
     def create(provider: str = None) -> BaseLLMClient:
-        chosen = (provider or settings.LLM_PROVIDER or "groq").lower()
+        # Priority:
+        # 1. Explicit argument passed to create()
+        # 2. If GROQ_API_KEY is present, prioritize Groq (qwen/qwen3.8-27b) for real-time speed
+        # 3. Configured settings.LLM_PROVIDER
+        # 4. Default: "groq"
+        if provider:
+            chosen = provider.lower().strip()
+        elif settings.GROQ_API_KEY:
+            chosen = "groq"
+        elif settings.LLM_PROVIDER:
+            chosen = settings.LLM_PROVIDER.lower().strip()
+        else:
+            chosen = "groq"
+
+        LLMFactory.provider = chosen
 
         primary_cls = GroqLLMClient if chosen == "groq" else GeminiLLMClient
         fallback_cls = GeminiLLMClient if chosen == "groq" else GroqLLMClient
@@ -51,7 +67,7 @@ class LLMFactory:
         fallback_desc = f"with fallback to {'GEMINI' if chosen == 'groq' else 'GROQ'}" if fallback_client else "no fallback"
         print(f"[LLMFactory] Initialized provider: '{chosen.upper()}' ({active_model}) [{fallback_desc}]")
 
-        return ResilientLLMClient(primary_client, fallback_client)
+        return ResilientLLMClient(primary_client, fallback_client, provider=chosen)
 
 
 # Default shared instance used across interview agents and services
