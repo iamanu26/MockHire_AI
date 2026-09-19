@@ -4,11 +4,13 @@
 
 ### AI-Powered Interview & Speaking Skill Simulator
 
-[![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
-[![React](https://img.shields.io/badge/Frontend-React_Vite-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://vitejs.dev)
-[![LLaMA](https://img.shields.io/badge/AI-LLaMA_3.1_via_Groq-F54E00?style=for-the-badge)](https://groq.com)
-[![PostgreSQL](https://img.shields.io/badge/Database-PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://postgresql.org)
-[![OAuth](https://img.shields.io/badge/Auth-Google_OAuth_2.0-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://developers.google.com/identity)
+[![FastAPI](https://img.shields.io/badge/Backend-FastAPI_0.135-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
+[![React](https://img.shields.io/badge/Frontend-React_19_|_Vite_7-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://vitejs.dev)
+[![AI Engine](https://img.shields.io/badge/AI-Groq_(Qwen_3.8)_|_Gemini_Fallback-F54E00?style=for-the-badge)](https://groq.com)
+[![PostgreSQL](https://img.shields.io/badge/Database-PostgreSQL_|_SQLAlchemy_2.0-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://postgresql.org)
+[![Auth](https://img.shields.io/badge/Auth-Google_OAuth_2.0_|_JWT_|_Argon2-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://developers.google.com/identity)
+[![Proctoring](https://img.shields.io/badge/Proctoring-face--api.js_|_Computer_Vision-8A2BE2?style=for-the-badge)](https://github.com/justadudewhohacks/face-api.js)
+[![TTS](https://img.shields.io/badge/Voice-Coqui_XTTS--v2_|_Web_Speech-FF6F00?style=for-the-badge&logo=huggingface&logoColor=white)](https://huggingface.co/coqui/XTTS-v2)
 [![License](https://img.shields.io/badge/License-MIT-4F46E5?style=for-the-badge)](LICENSE)
 
 *Built by [Anurag Dubey](https://portfolio-iamanu26.vercel.app/)*
@@ -17,9 +19,9 @@
 
 ---
 
-MockHire AI is a full-stack, AI-driven web application that simulates real-world job interviews through **live voice interaction** and delivers intelligent, structured performance feedback. The platform helps students and job seekers sharpen their interview readiness, communication skills, and technical confidence — in a realistic, pressure-free environment.
+MockHire AI is a full-stack, enterprise-grade AI interview platform that simulates realistic job interviews through **live voice conversations**, automated **browser-based computer vision proctoring**, and intelligent **performance feedback analytics**.
 
-Now featuring **Google OAuth 2.0**, **email verification**, **resume-aware interviews**, an **AI Interview Coach**, and a production-grade **PostgreSQL** backend.
+The platform is architected around **SOLID principles** and proven design patterns (Repository, Strategy, Factory, and Resilient Decorator), featuring **dual-engine AI failover (Groq + Gemini)**, **Coqui XTTS-v2 neural voice synthesis**, **resume extraction via PyPDF**, **Google OAuth 2.0 / Argon2id security**, and a production **PostgreSQL** persistence layer.
 
 ---
 
@@ -27,59 +29,155 @@ Now featuring **Google OAuth 2.0**, **email verification**, **resume-aware inter
 
 | # | Feature | What It Does |
 |---|---------|-------------|
-| 🧠 | **AI Interview Simulation** | Conducts HR & Technical interviews tailored to your role, company type, and experience level |
-| 🎙️ | **Voice-Based Interaction** | Fully hands-free — AI speaks questions, you answer verbally, Web Speech API handles everything |
-| 📊 | **AI Feedback Report** | Auto-generates a scorecard across Communication, Confidence, Technical Skills, Grammar & Overall |
-| 💻 | **DSA Practice Module** | LeetCode-style coding environment with AI-generated problems and code review |
-| 📄 | **Resume-Aware Interview** *(NEW)* | Upload your PDF resume — AI parses your skills and tailors every question to your background |
-| 🤖 | **AI Interview Coach** *(NEW)* | Dedicated Resources tab with an on-demand LLaMA 3.1 coaching chatbot |
-| 🔐 | **OAuth + JWT + Email Verify** *(NEW)* | Google OAuth 2.0, email OTP verification, and JWT — all unified in one auth system |
-| 🐘 | **PostgreSQL Backend** *(UPGRADED)* | Migrated from SQLite to PostgreSQL with Alembic migrations and connection pooling |
+| 🧠 | **AI Interview Simulation** | Conducts Technical & HR interviews customized to target role, company type, and seniority level using modular strategy agents. |
+| 🎙️ | **Dual-Engine Voice I/O** | Real-time speech synthesis using HuggingFace Coqui XTTS-v2 neural voice with browser Web Speech API fallback for hands-free audio. |
+| 🛡️ | **Client-Side AI Proctoring** | Real-time browser proctoring powered by `face-api.js` — detects absence, multiple faces, tab switching, and window blur with live warnings. |
+| 📊 | **Multi-Metric AI Feedback** | Generates detailed scorecards across Communication, Confidence, Technical Skills, Grammar & Overall performance with actionable feedback. |
+| 💻 | **DSA Practice Module** | Interactive LeetCode-style algorithm arena with AI-driven correctness, time complexity, and space complexity evaluation. |
+| 📄 | **Resume-Aware Personalization** | PyPDF parses candidate resumes; LLM distills key skill vectors to contextually tailor opening and follow-up questions. |
+| 🤖 | **AI Interview Coach** | Dedicated on-demand coaching chatbot for STAR methodology, negotiation tactics, role guidance, and technical mock questions. |
+| ⚡ | **Resilient Multi-LLM Failover** | Zero-downtime architecture prioritizing high-speed Groq (Qwen 3.8) with automated graceful fallback to Google Gemini (3.6 Flash). |
+| 🔐 | **Enterprise Auth & Security** | Google OAuth 2.0, dual-hash support (Argon2id + Bcrypt), email OTP verification via FastAPI-Mail, and SlowAPI rate limiting. |
+| 🐘 | **Production PostgreSQL & Clean Architecture** | Decoupled layered architecture with SQLAlchemy 2.0, repository pattern, and resilient connection pooling. |
 
 ---
 
 ## 🏗️ System Architecture
 
-The project follows a **decoupled, layered architecture** — Frontend, Backend API, AI Engine, and Data Layer each operate independently and communicate over clean interfaces.
+MockHire AI is built using a **decoupled, layered architecture adhering strictly to SOLID principles**. The system separates concerns between Client Experience, API Routing, Domain Intelligence, Data Persistence, and Third-Party Integrations.
 
 ```mermaid
-graph TB
-    subgraph FRONTEND ["Layer 1 — Frontend  React.js + Vite"]
-        UI["UI + Router"] --- VOICE["Voice I/O"]
-        VOICE --- RESUME_UI["Resume Upload\nPDF Drag & Drop"]
-        RESUME_UI --- COACH_UI["Resources Tab\nCoach Chat UI"]
-        COACH_UI --- AUTH_F["Auth Forms\nOAuth + Email OTP"]
-    end
+flowchart TD
 
-    subgraph BACKEND ["Layer 2 — Backend  FastAPI Python"]
-        AUTH_R["/auth\nregister, login\nOAuth, verify-email"] --- INTERVIEW_R["/interview\nstart, answer, end"]
-        RESUME_R["/resume\nupload, parse\nextract, store"] --- COACH_R["/coach\nchat, advice\ntips, strategy"]
-        DSA_R["/dsa\ngenerate, evaluate"] --- FEEDBACK_R["/feedback\nreport, score"]
-    end
+subgraph group_frontend["Frontend Experience"]
+  node_app["React Application<br/>[App.jsx]"]
+  node_auth_ui["Auth Context<br/>[AuthContext.jsx]"]
+  node_interview_ui["Interview Workspace<br/>[Interview.jsx]"]
+  node_proctoring["Browser Proctoring<br/>[useProctoring.js]"]
+  node_dsa_ui["DSA Practice Arena<br/>[Dsapractice.jsx]"]
+  node_coach_ui["Coach Resources Hub<br/>[Resources.jsx]"]
+end
 
-    subgraph AI ["Layer 3 — AI Engine  LLaMA 3.1 via Groq"]
-        QGEN["Question Gen\nResume-aware Agent"] --- FOLLOWUP["Follow-up Agent\nContext-aware"]
-        RESUME_AI["Resume Parser\nPDF → skills JSON"] --- COACH_AI["Coach Agent\nCoaching prompts"]
-        DSA_AI["DSA Evaluator\nComplexity review"] --- FEEDBACK_AI["Feedback Report\nScore generator"]
-    end
+subgraph group_api["Backend API (Routers)"]
+  node_api_main["FastAPI Application<br/>[main.py]"]
+  node_auth_router["Auth Router<br/>[auth_router.py]"]
+  node_interview_router["Interview Router<br/>[interview_router.py]"]
+  node_resume_router["Resume Router<br/>[resume_router.py]"]
+  node_dsa_router["DSA Router<br/>[dsa_router.py]"]
+  node_resources_router["Resources Router<br/>[resources_router.py]"]
+end
 
-    subgraph DB ["Layer 4 — Data Layer  PostgreSQL via SQLAlchemy"]
-        USERS[("USERS\n+ oauth_provider\n+ is_verified")] --- SESSIONS[("SESSIONS\n+ resume_id FK")]
-        RESUMES[("RESUMES\nNEW TABLE")] --- SCORES[("SCORES")]
-        HISTORY[("HISTORY")] --- DSA_DB[("DSA RESULTS")]
-    end
+subgraph group_services["Domain & Intelligence Services"]
+  node_auth_service["Auth Service<br/>[auth_service.py]"]
+  node_interview_service["Interview Service<br/>[interview_service.py]"]
+  node_agent_factory["Agent Factory<br/>[agent_factory.py]"]
+  node_agents["HR & Tech Agents<br/>[base_agent.py]"]
+  node_llm_adapter{{"Resilient LLM Adapter<br/>[llm_factory.py]"}}
+end
 
-    FRONTEND -->|"HTTP / REST API"| BACKEND
-    BACKEND -->|"Groq API Calls (LLaMA 3.1)"| AI
-    BACKEND -->|"SQLAlchemy ORM"| DB
+subgraph group_data["Persistence Layer"]
+  node_user_repo["User Repository<br/>[user_repository.py]"]
+  node_session_repo["Session Repository<br/>[session_repository.py]"]
+  node_interview_repo["Interview Repository<br/>[interview_repository.py]"]
+  node_postgres[("PostgreSQL Database<br/>[database.py]")]
+end
+
+subgraph group_integrations["External Integrations & Providers"]
+  node_tts["Speech Synthesis<br/>[text_to_speech.py]"]
+  node_email_service["Email Delivery<br/>[email_utils.py]"]
+  node_google["Google OAuth 2.0"]
+  node_llm_provider{{"AI Providers (Groq / Gemini)"}}
+end
+
+node_user(("Job Seeker"))
+
+node_user -->|"interacts with"| node_app
+node_app -->|"wraps with"| node_auth_ui
+node_auth_ui -->|"authenticates"| node_auth_router
+node_auth_router -->|"delegates to"| node_auth_service
+node_auth_router -->|"sends OTP via"| node_email_service
+node_auth_router -.->|"exchanges OAuth"| node_google
+node_auth_service -->|"queries / persists"| node_user_repo
+node_user_repo -->|"CRUD operations"| node_postgres
+
+node_app -->|"routes to"| node_interview_ui
+node_interview_ui -->|"uploads PDF"| node_resume_router
+node_resume_router -->|"extracts skills JSON"| node_llm_adapter
+node_interview_ui -->|"starts session & submits answers"| node_interview_router
+node_interview_ui -->|"initializes"| node_proctoring
+node_proctoring -->|"reports violations & warnings"| node_interview_ui
+node_interview_router -->|"delegates to"| node_interview_service
+node_interview_router -->|"synthesizes speech"| node_tts
+node_interview_service -->|"creates strategy via"| node_agent_factory
+node_agent_factory -->|"instantiates"| node_agents
+node_agents -->|"requests completions"| node_llm_adapter
+node_llm_adapter -->|"calls active model"| node_llm_provider
+node_interview_service -->|"persists session & resume"| node_session_repo
+node_interview_service -->|"persists evaluation report"| node_interview_repo
+node_session_repo -->|"writes to"| node_postgres
+node_interview_repo -->|"writes to"| node_postgres
+
+node_app -->|"routes to"| node_dsa_ui
+node_dsa_ui -->|"requests & submits code"| node_dsa_router
+node_dsa_router -->|"generates & evaluates"| node_llm_adapter
+
+node_app -->|"routes to"| node_coach_ui
+node_coach_ui -->|"requests coaching"| node_resources_router
+node_resources_router -->|"completes advice"| node_llm_adapter
+
+node_api_main -->|"mounts"| node_auth_router
+node_api_main -->|"mounts"| node_interview_router
+node_api_main -->|"mounts"| node_resume_router
+node_api_main -->|"mounts"| node_dsa_router
+node_api_main -->|"mounts"| node_resources_router
+
+click node_app "https://github.com/iamanu26/mockhire_ai/blob/main/frontend/src/App.jsx"
+click node_auth_ui "https://github.com/iamanu26/mockhire_ai/blob/main/frontend/src/context/AuthContext.jsx"
+click node_interview_ui "https://github.com/iamanu26/mockhire_ai/blob/main/frontend/src/pages/Interview.jsx"
+click node_proctoring "https://github.com/iamanu26/mockhire_ai/blob/main/frontend/src/hooks/useProctoring.js"
+click node_dsa_ui "https://github.com/iamanu26/mockhire_ai/blob/main/frontend/src/pages/Dsapractice.jsx"
+click node_coach_ui "https://github.com/iamanu26/mockhire_ai/blob/main/frontend/src/pages/Resources.jsx"
+click node_api_main "https://github.com/iamanu26/mockhire_ai/blob/main/backend/main.py"
+click node_auth_router "https://github.com/iamanu26/mockhire_ai/blob/main/backend/routers/auth_router.py"
+click node_interview_router "https://github.com/iamanu26/mockhire_ai/blob/main/backend/routers/interview_router.py"
+click node_resume_router "https://github.com/iamanu26/mockhire_ai/blob/main/backend/routers/resume_router.py"
+click node_dsa_router "https://github.com/iamanu26/mockhire_ai/blob/main/backend/routers/dsa_router.py"
+click node_resources_router "https://github.com/iamanu26/mockhire_ai/blob/main/backend/routers/resources_router.py"
+click node_auth_service "https://github.com/iamanu26/mockhire_ai/blob/main/backend/services/auth_service.py"
+click node_interview_service "https://github.com/iamanu26/mockhire_ai/blob/main/backend/services/interview_service.py"
+click node_agent_factory "https://github.com/iamanu26/mockhire_ai/blob/main/backend/agents/agent_factory.py"
+click node_agents "https://github.com/iamanu26/mockhire_ai/blob/main/backend/agents/base_agent.py"
+click node_llm_adapter "https://github.com/iamanu26/mockhire_ai/blob/main/backend/llm/llm_factory.py"
+click node_user_repo "https://github.com/iamanu26/mockhire_ai/blob/main/backend/repositories/user_repository.py"
+click node_session_repo "https://github.com/iamanu26/mockhire_ai/blob/main/backend/repositories/session_repository.py"
+click node_interview_repo "https://github.com/iamanu26/mockhire_ai/blob/main/backend/repositories/interview_repository.py"
+click node_postgres "https://github.com/iamanu26/mockhire_ai/blob/main/backend/core/database.py"
+click node_tts "https://github.com/iamanu26/mockhire_ai/blob/main/backend/text_to_speech.py"
+click node_email_service "https://github.com/iamanu26/mockhire_ai/blob/main/backend/email_utils.py"
+
+classDef toneNeutral fill:#f8fafc,stroke:#334155,stroke-width:1.5px,color:#0f172a
+classDef toneBlue fill:#dbeafe,stroke:#2563eb,stroke-width:1.5px,color:#172554
+classDef toneAmber fill:#fef3c7,stroke:#d97706,stroke-width:1.5px,color:#78350f
+classDef toneMint fill:#dcfce7,stroke:#16a34a,stroke-width:1.5px,color:#14532d
+classDef toneRose fill:#ffe4e6,stroke:#e11d48,stroke-width:1.5px,color:#881337
+classDef toneIndigo fill:#e0e7ff,stroke:#4f46e5,stroke-width:1.5px,color:#312e81
+classDef toneTeal fill:#ccfbf1,stroke:#0f766e,stroke-width:1.5px,color:#134e4a
+class node_app,node_auth_ui,node_interview_ui,node_proctoring,node_dsa_ui,node_coach_ui toneBlue
+class node_api_main,node_auth_router,node_interview_router,node_resume_router,node_dsa_router,node_resources_router toneAmber
+class node_auth_service,node_interview_service,node_agent_factory,node_agents,node_llm_adapter toneMint
+class node_postgres,node_user_repo,node_session_repo,node_interview_repo toneRose
+class node_tts,node_email_service,node_google,node_llm_provider,node_user toneIndigo
 ```
 
-| Layer | Technology | Role |
-|-------|------------|------|
-| **Frontend** | React.js + Vite + Web Speech API | User interface, voice I/O, resume uploader, coach chat |
-| **Backend API** | FastAPI (Python) + JWT + OAuth + bcrypt | Routing, auth, resume handling, coach, business logic |
-| **AI Engine** | LLaMA 3.1 via Groq API | Question gen, follow-ups, resume parsing, coaching, DSA eval, feedback |
-| **Data Layer** | PostgreSQL via SQLAlchemy ORM + Alembic | Users, sessions, resumes, history, scores |
+### Layer Breakdown
+
+| Architectural Layer | Core Technologies | Primary Responsibilities |
+|---|---|---|
+| **Frontend Experience** | React 19, Vite 7, React Router 7, `face-api.js`, Web Speech API | Reactive UI, client-side vision proctoring, speech synthesis & recognition, auth context |
+| **Backend API (Routers)** | FastAPI 0.135, Pydantic v2, SlowAPI Rate Limiting | Thin controllers (`auth`, `interview`, `resume`, `dsa`, `resources`, `profile`) |
+| **Domain & Intelligence Services** | Agent Factory, Strategy Agents, Resilient LLM Adapter | Business logic orchestration, interview strategies, multi-LLM failover (Groq + Gemini) |
+| **Persistence Layer** | PostgreSQL, SQLAlchemy 2.0 ORM, Repository Pattern | Decoupled data queries via `UserRepository`, `SessionRepository`, `InterviewRepository` |
+| **External Integrations & Providers** | Coqui XTTS-v2 (HuggingFace), FastAPI-Mail, Google OAuth 2.0, Cloud LLMs | Neural speech synthesis, transactional OTP emails, OAuth token exchange, AI model completions |
 
 ---
 
@@ -87,79 +185,84 @@ graph TB
 
 ### 01 — 🎙️ Voice Interview Simulation
 
-The AI acts as a real interviewer — it speaks questions aloud via speech synthesis, listens to your spoken answers through the browser's Web Speech API, and sends your response to LLaMA 3.1 to generate the next intelligent, context-aware follow-up.
+The AI interviewer dynamically acts as a live technical lead or HR director, asking questions through neural audio, listening through Web Speech APIs, and evaluating candidate responses with conversational continuity.
 
-- Technical & HR interview modes
-- Questions tailored to **company type**, **job role**, and **experience level**
-- **Resume-context injection** — opening questions reference your actual background
-- Conversation-aware follow-ups (not random question lists)
-- Session isolation — every interview starts fresh with no history bleed
-
----
-
-### 02 — 📊 AI Feedback Report
-
-After ending a session, your full conversation history is passed to LLaMA 3.1 which generates a detailed performance report — scored and written from what you *actually said*, not a generic template.
-
-| Score Category | What's Evaluated |
-|---|---|
-| 💬 Communication | Clarity, structure, and coherence of answers |
-| 🧘 Confidence | Assertiveness, filler words, hedging language |
-| 🔧 Technical Skills | Accuracy and depth of technical responses |
-| ✍️ Grammar | Language correctness and professionalism |
-| ⭐ Overall | Holistic interview performance score |
-
-> Includes a written **strengths & weaknesses summary** specific to your actual conversation. All scores persisted to PostgreSQL.
+- **Strategy-Driven Agents**: Employs `TechnicalInterviewAgent` and `HRInterviewAgent` generated dynamically via `AgentFactory`.
+- **Targeted Customization**: Configured per session by company tier (*Product, Service, Startup*), role (*Software Engineer, Frontend, Backend, etc.*), and seniority level (*Junior, Intermediate, Senior*).
+- **Dual-Voice Engine**: Utilizes **HuggingFace Coqui XTTS-v2** high-fidelity speech inference with transparent client-side `SpeechSynthesis` fallback.
+- **Contextual Follow-ups**: Evaluates answers against interview history; avoids canned lists by synthesizing targeted follow-ups.
+- **Adversarial Defense**: Protected by `InjectionGuard` (Chain of Responsibility) to block prompt injection attacks and malicious overrides.
 
 ---
 
-### 03 — 💻 DSA Practice Module
+### 02 — 🛡️ Real-Time Browser Proctoring
 
-A LeetCode-style coding environment where every session brings 3 fresh AI-generated problems. Submit your solution and get a detailed code review from the AI.
+MockHire AI features an automated browser proctoring system built directly into `useProctoring.js` using client-side computer vision:
 
-- **3 problems per session** — Easy, Medium, Hard
-- **4 languages supported** — Python, C++, Java, JavaScript
-- **Browser-based editor** with line numbers and tab support
-- AI reviews for **correctness**, **time complexity**, **space complexity**
-- **Score out of 10** per submission
-
----
-
-### 04 — 🔐 User Auth, OAuth & History
-
-A unified authentication system supports both traditional and social sign-in, with mandatory email verification for new accounts.
-
-- **Google OAuth 2.0** via Authlib — one-click sign-in
-- **Email OTP verification** — sent on registration, required before first session (OAuth users are pre-verified)
-- **JWT access tokens** for all protected endpoints — both auth paths issue the same JWT payload
-- `oauth_provider` and `is_verified` columns added to the USERS table
-- Full **per-user interview history** stored in PostgreSQL
-- View past session scores and feedback anytime
+- **Face Presence Tracking**: Leverages `face-api.js` (Tiny Face Detector / SSD MobileNet) to ensure candidate presence in front of the camera.
+- **Multiple Face Detection**: Instantly alerts the candidate and records an infraction if more than one face appears in the video frame.
+- **Tab & Window Vigilance**: Listens to `visibilitychange` and window `blur` events to detect off-tab research or background app switching.
+- **Real-Time Violation Counter**: Informs the user of detected warnings, ensuring integrity while remaining completely client-side without sending raw video streams over the wire.
 
 ---
 
-### 05 — 📄 Resume-Aware Interview *(NEW)*
+### 03 — 📊 Multi-Metric AI Feedback Report
 
-Upload your PDF resume before starting a session. The AI reads your background and asks questions that are directly relevant to your actual experience — not a generic template.
+Upon interview completion, the candidate's transcript is passed to the LLM for multi-faceted rubric scoring:
 
-- **PDF upload & drag-and-drop UI** on the frontend
-- **PyMuPDF** extracts raw text from your resume
-- **LLaMA 3.1** summarizes extracted text into a compact `skills_json` (≤200 tokens) — minimal prompt overhead, maximum relevance
-- `skills_json` injected into the interview system prompt at session start
-- Resume stored in a new **RESUMES** table in PostgreSQL, linked to your user account via FK
-- SESSIONS table now carries a `resume_id` FK — every interview session is tied to the resume used
+| Metric | Focus Area | What the Model Analyzes |
+|---|---|---|
+| 💬 **Communication** | Clarity & Articulation | Answer conciseness, structured thinking (STAR method), and pace |
+| 🧘 **Confidence** | Poise & Conviction | Use of filler words, assertive tone vs. defensive hesitation |
+| 🔧 **Technical Skills** | Technical Depth | Accuracy of architectural explanations, trade-off understanding |
+| ✍️ **Grammar** | Professionalism | Linguistic correctness, corporate vocabulary, professional tone |
+| ⭐ **Overall** | Holistic Verdict | Aggregate interview readiness benchmark |
+
+> All session telemetry and structured scorecards are persisted via `InterviewRepository` to PostgreSQL and surfaced in the user's permanent history.
 
 ---
 
-### 06 — 🤖 AI Interview Coach — Resources Tab *(NEW)*
+### 04 — 💻 DSA Coding Practice Module
 
-A dedicated **Resources** tab in the navigation gives you access to an AI coaching chatbot — completely separate from the interview simulation, available at any time.
+An integrated algorithm environment designed to test Data Structures & Algorithms competency:
 
-- **Chat-based interface** powered by LLaMA 3.1 via Groq
-- Stateless per-message calls with a coaching-specific system prompt
-- Covers: interview tips, STAR method coaching, role-specific question banks (SWE, PM, Data), resume phrasing, technical concept explanations, offer negotiation
-- Accessible via `/coach/chat` backend endpoint
-- No session history required — ask anything, anytime
+- **AI-Generated Problems**: Offers Easy, Medium, and Hard challenges dynamically tailored to modern interview rubrics.
+- **Multi-Language Support**: Write and test solutions in Python, C++, Java, and JavaScript.
+- **Multi-Dimensional AI Review**: Evaluates code submissions for algorithmic correctness, asymptotic time complexity ($O$), auxiliary space complexity, and edge case coverage.
+- **Scored Feedback**: Returns an automated evaluation score out of 10 with actionable optimization advice.
+
+---
+
+### 05 — 🔐 Enterprise Auth, Google OAuth & Security
+
+A secure, unified identity and authentication layer:
+
+- **Google OAuth 2.0 Integration**: One-click social sign-in with automatic token exchange and account provisioning.
+- **Dual Password Hashing**: Modern **Argon2id** password hashing with backward-compatible **Bcrypt** verification via `passlib`.
+- **JWT Authentication**: Stateles JSON Web Tokens (`HS256`) securing all protected routes with automated expiration.
+- **Email Verification**: Transactional OTP emails dispatched via `fastapi-mail` for account confirmation and password recovery.
+- **Rate Limiting**: Defends endpoints against brute force and DDoS using **SlowAPI** memory-backed limiting.
+
+---
+
+### 06 — 📄 Resume-Aware Interview Personalization
+
+Candidates can upload their resume to receive bespoke questions tuned to their actual background:
+
+- **PyPDF Document Parsing**: Extracts raw text from uploaded PDF resumes asynchronously on upload.
+- **Skill Distillation**: The LLM extracts skills, project tech stacks, and domain specializations into a structured `skills_json` payload.
+- **Prompt Context Injection**: Injected into the initial interview prompt, allowing the agent to reference specific projects and past engineering experiences.
+- **Session Persistence**: Saved alongside the `InterviewSession` entity for auditability and post-interview review.
+
+---
+
+### 07 — 🤖 AI Interview Coach (Resources Hub)
+
+A 24/7 dedicated career and interview preparation assistant accessible from the Resources tab:
+
+- **Stateless Career Consultation**: Instant answers on behavioral questions, system design approaches, salary negotiation, and resume optimization.
+- **Curated Learning Paths**: Role-specific question banks for Software Engineers, Product Managers, and Data Scientists.
+- **Interactive Roleplay**: Practice challenging questions in a low-stakes conversational sandbox before starting a scored session.
 
 ---
 
@@ -167,32 +270,38 @@ A dedicated **Resources** tab in the navigation gives you access to an AI coachi
 
 <div align="center">
 
-**Frontend**
+### Frontend Ecosystem
 
-![React](https://img.shields.io/badge/React-61DAFB?style=flat-square&logo=react&logoColor=black)
-![Vite](https://img.shields.io/badge/Vite-646CFF?style=flat-square&logo=vite&logoColor=white)
-![React Router](https://img.shields.io/badge/React_Router-CA4245?style=flat-square&logo=reactrouter&logoColor=white)
-![Web Speech API](https://img.shields.io/badge/Web_Speech_API-Browser_Native-34A853?style=flat-square)
+[![React](https://img.shields.io/badge/React-19.2-61DAFB?style=flat-square&logo=react&logoColor=black)](https://react.dev)
+[![Vite](https://img.shields.io/badge/Vite-7.2-646CFF?style=flat-square&logo=vite&logoColor=white)](https://vitejs.dev)
+[![React Router](https://img.shields.io/badge/React_Router-7.1-CA4245?style=flat-square&logo=reactrouter&logoColor=white)](https://reactrouter.com)
+[![face-api.js](https://img.shields.io/badge/face--api.js-0.22-8A2BE2?style=flat-square)](https://github.com/justadudewhohacks/face-api.js)
+[![Web Speech API](https://img.shields.io/badge/Web_Speech_API-Native_Browser-34A853?style=flat-square)](#)
+[![MediaDevices](https://img.shields.io/badge/MediaDevices_API-WebRTC_Streams-FF6C37?style=flat-square)](#)
 
-**Backend**
+### Backend Ecosystem
 
-![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white)
-![Python](https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white)
-![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-ORM-D71F00?style=flat-square)
-![JWT](https://img.shields.io/badge/JWT-Auth-000000?style=flat-square&logo=jsonwebtokens&logoColor=white)
-![bcrypt](https://img.shields.io/badge/bcrypt-Password_Hashing-6D4C41?style=flat-square)
-![Authlib](https://img.shields.io/badge/Authlib-Google_OAuth_2.0-4285F4?style=flat-square&logo=google&logoColor=white)
-![SendGrid](https://img.shields.io/badge/SendGrid-Email_OTP-1A82E2?style=flat-square)
-![PyMuPDF](https://img.shields.io/badge/PyMuPDF-Resume_Parser-EC4899?style=flat-square)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.135-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
+[![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=flat-square&logo=python&logoColor=white)](https://python.org)
+[![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-2.0-D71F00?style=flat-square)](https://www.sqlalchemy.org)
+[![Pydantic](https://img.shields.io/badge/Pydantic-v2.12-E92063?style=flat-square&logo=pydantic&logoColor=white)](https://docs.pydantic.dev)
+[![SlowAPI](https://img.shields.io/badge/SlowAPI-Rate_Limiter-gray?style=flat-square)](https://github.com/laurentS/slowapi)
+[![FastAPI-Mail](https://img.shields.io/badge/FastAPI--Mail-1.6-008080?style=flat-square)](https://github.com/sabuhish/fastapi-mail)
+[![PyPDF](https://img.shields.io/badge/PyPDF-Text_Extraction-FF0000?style=flat-square)](https://pypdf.readthedocs.io)
 
-**AI Engine**
+### AI, Machine Learning & Voice
 
-![LLaMA](https://img.shields.io/badge/LLaMA_3.1-via_Groq-F54E00?style=flat-square)
+[![Groq](https://img.shields.io/badge/Groq-Qwen_3.8--27b-F54E00?style=flat-square)](https://groq.com)
+[![Google Gemini](https://img.shields.io/badge/Google_Gemini-3.6_Flash_(Fallback)-4285F4?style=flat-square&logo=google&logoColor=white)](https://ai.google.dev)
+[![Coqui XTTS-v2](https://img.shields.io/badge/Coqui_XTTS--v2-HuggingFace_Inference-FFD21E?style=flat-square&logo=huggingface&logoColor=black)](https://huggingface.co/coqui/XTTS-v2)
+[![InjectionGuard](https://img.shields.io/badge/Guard-Prompt_Injection_Filter-22C55E?style=flat-square)](#)
 
-**Database**
+### Database & Security
 
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Production_DB-4169E1?style=flat-square&logo=postgresql&logoColor=white)
-![Alembic](https://img.shields.io/badge/Alembic-Migrations-gray?style=flat-square)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-psycopg2-4169E1?style=flat-square&logo=postgresql&logoColor=white)](https://www.postgresql.org)
+[![JWT](https://img.shields.io/badge/python--jose-JWT_Tokens-000000?style=flat-square&logo=jsonwebtokens&logoColor=white)](https://jwt.io)
+[![Argon2](https://img.shields.io/badge/Argon2-cffi_|_Bcrypt-5A3E85?style=flat-square)](https://passlib.readthedocs.io)
+[![Google OAuth](https://img.shields.io/badge/Google_OAuth-2.0-EA4335?style=flat-square&logo=google&logoColor=white)](https://developers.google.com/identity)
 
 </div>
 
@@ -202,205 +311,292 @@ A dedicated **Resources** tab in the navigation gives you access to an AI coachi
 
 ### Prerequisites
 
-- Python 3.10+
-- Node.js 18+
-- PostgreSQL 14+ (local or hosted — e.g. Supabase, Railway, Neon)
-- A [Groq API key](https://console.groq.com/) (free tier available)
-- A Google OAuth app (Client ID + Secret) from [Google Cloud Console](https://console.cloud.google.com/)
-- A SendGrid API key (or any SMTP credentials) for email verification
+- **Python**: 3.10 or higher
+- **Node.js**: 18 or higher (LTS recommended)
+- **PostgreSQL**: 14+ (Local instance or cloud hosted e.g., Supabase, Neon, Railway)
+- **Groq API Key**: Obtainable from the [Groq Console](https://console.groq.com/)
+- **Google Gemini API Key** *(Optional Fallback)*: Available from [Google AI Studio](https://aistudio.google.com/)
+- **HuggingFace API Key**: For Coqui XTTS-v2 neural voice synthesis
+- **Google OAuth Credentials**: Client ID & Secret from [Google Cloud Console](https://console.cloud.google.com/)
+- **SMTP Credentials**: Gmail or transactional SMTP credentials for OTP mail
+
+---
 
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/iamanu26/mockhire-ai.git
-cd mockhire-ai
+git clone https://github.com/iamanu26/mockhire_ai.git
+cd mockhire_ai
 ```
 
-### 2. Backend Setup
+---
 
-```bash
-cd backend
-pip install -r requirements.txt
-```
+### 2. Backend Configuration & Setup
 
-Create a `.env` file inside `backend/`:
+1. Navigate to the backend directory and create a virtual environment:
+   ```bash
+   cd backend
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
 
-```env
-# AI
-GROQ_API_KEY=your_groq_api_key_here
+2. Install backend dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-# Auth
-SECRET_KEY=your_jwt_secret_key_here
+3. Configure environment variables in `backend/.env`:
+   ```env
+   # ── Database (PostgreSQL) ──────────────────────────
+   DATABASE_URL=postgresql://postgres:password@localhost:5432/mockhire_db
 
-# Database (PostgreSQL)
-DATABASE_URL=postgresql+asyncpg://user:password@localhost:5432/mockhire
+   # ── Security & JWT ──────────────────────────────────
+   SECRET_KEY=your_super_secret_jwt_key_here
+   ACCESS_TOKEN_EXPIRE_MINUTES=10080
 
-# Google OAuth 2.0
-GOOGLE_CLIENT_ID=your_google_client_id
-GOOGLE_CLIENT_SECRET=your_google_client_secret
-GOOGLE_REDIRECT_URI=http://localhost:8000/auth/google/callback
+   # ── Primary AI Provider (Groq) ──────────────────────
+   GROQ_API_KEY=gsk_your_groq_api_key
+   GROQ_MODEL=qwen/qwen3.8-27b
 
-# Email Verification
-SENDGRID_API_KEY=your_sendgrid_api_key
-FROM_EMAIL=noreply@yourdomain.com
-```
+   # ── Secondary AI Provider (Google Gemini Fallback) ──
+   GEMINI_API_KEY=your_gemini_api_key
+   GEMINI_MODEL=gemini-3.6-flash
 
-Run database migrations:
+   # ── Text-to-Speech (HuggingFace Inference) ──────────
+   HF_API_KEY=hf_your_huggingface_key
 
-```bash
-alembic upgrade head
-```
+   # ── Google OAuth 2.0 ────────────────────────────────
+   GOOGLE_CLIENT_ID=your_google_client_id.apps.googleusercontent.com
+   GOOGLE_CLIENT_SECRET=your_google_client_secret
 
-Start the server:
+   # ── Email Service (SMTP) ────────────────────────────
+   MAIL_USERNAME=your_email@gmail.com
+   MAIL_PASSWORD=your_app_password
 
-```bash
-uvicorn main:app --reload
-# API runs on http://localhost:8000
-```
+   # ── Service URLs ────────────────────────────────────
+   FRONTEND_URL=http://localhost:5173
+   BACKEND_URL=http://localhost:8000
+   ```
+
+4. Launch the backend API service:
+   ```bash
+   uvicorn main:app --reload --port 8000
+   ```
+   *The FastAPI server starts at `http://localhost:8000` with interactive Swagger docs at `http://localhost:8000/docs`.*
+
+---
 
 ### 3. Frontend Setup
 
-```bash
-cd frontend
-npm install
-npm run dev
-# App runs on http://localhost:5173
-```
+1. In a separate terminal, navigate to the frontend directory:
+   ```bash
+   cd frontend
+   npm install
+   ```
+
+2. Start the Vite development server:
+   ```bash
+   npm run dev
+   ```
+   *The frontend application will be live at `http://localhost:5173`.*
 
 ---
 
 ## 🗂️ Project Structure
 
+The project has been refactored from a monolithic setup into a modular, clean, layered architecture:
+
 ```
-mockhire-ai/
+mockhire_ai/
 │
 ├── backend/
-│   ├── main.py                # FastAPI app entry point
-│   ├── models.py              # SQLAlchemy DB models (Users, Sessions, Resumes, Scores...)
-│   ├── schemas.py             # Pydantic request/response schemas
-│   ├── auth.py                # JWT logic, bcrypt hashing, OAuth callback
-│   ├── email_utils.py         # OTP generation & SendGrid/SMTP email sender
-│   ├── interview_agent.py     # LLaMA interview session manager (resume-aware)
-│   ├── resume_parser.py       # PyMuPDF extraction + LLaMA skills summariser
-│   ├── coach_agent.py         # Stateless LLaMA coaching chatbot
-│   ├── dsa_agent.py           # DSA problem generator & evaluator
-│   ├── feedback.py            # Feedback report generator
-│   ├── database.py            # PostgreSQL async connection & session
-│   ├── alembic/               # Database migration scripts
-│   └── requirements.txt
+│   ├── main.py                        # FastAPI entry point & router registration
+│   ├── requirements.txt               # Backend dependencies
+│   ├── text_to_speech.py              # Coqui XTTS-v2 HuggingFace TTS client
+│   ├── email_utils.py                 # FastAPI-Mail async email helper
+│   │
+│   ├── core/                          # Cross-cutting foundational modules
+│   │   ├── config.py                  # Pydantic/Settings environment configuration
+│   │   ├── database.py                # PostgreSQL engine & session factory
+│   │   └── security.py                # JWT creation, Argon2 & bcrypt hashing
+│   │
+│   ├── models/                        # SQLAlchemy Declarative ORM entities
+│   │   ├── user.py                    # User account & OAuth entity
+│   │   ├── interview_session.py       # Session, resume context & dialogue history
+│   │   └── interview_result.py        # Final scorecard & metrics entity
+│   │
+│   ├── repositories/                  # Data Access Layer (Repository Pattern)
+│   │   ├── base.py                    # Generic abstract BaseRepository
+│   │   ├── user_repository.py         # User queries & profile mutations
+│   │   ├── session_repository.py      # Session lifecycle & history persistence
+│   │   └── interview_repository.py    # Results & score storage
+│   │
+│   ├── services/                      # Pure Business Logic Layer
+│   │   ├── auth_service.py            # Registration, login, OTP & OAuth logic
+│   │   ├── interview_service.py       # Session orchestration & agent coordination
+│   │   └── profile_service.py         # Candidate stats & analytics calculation
+│   │
+│   ├── agents/                        # Interview Agents (Strategy Pattern)
+│   │   ├── base_agent.py              # Abstract BaseInterviewAgent
+│   │   ├── tech_agent.py              # Technical interview question strategy
+│   │   ├── hr_agent.py                # HR behavioral interview strategy
+│   │   └── agent_factory.py           # Factory for dynamic agent instantiation
+│   │
+│   ├── llm/                           # LLM Provider Layer (Adapter & Failover)
+│   │   ├── base_llm.py                # Abstract BaseLLMClient contract
+│   │   ├── groq_client.py             # High-speed Groq inference client
+│   │   ├── gemini_client.py           # Google Gemini fallback client
+│   │   └── llm_factory.py             # Resilient decorator with automated failover
+│   │
+│   ├── guards/                        # Security & Validation Pipeline
+│   │   └── injection_guard.py         # Adversarial prompt injection detector
+│   │
+│   └── routers/                       # Thin HTTP Controllers
+│       ├── auth_router.py             # Authentication & OAuth endpoints
+│       ├── interview_router.py        # Interview session & answer exchange endpoints
+│       ├── resume_router.py           # PyPDF extraction & parsing endpoint
+│       ├── dsa_router.py              # DSA challenge generation & code review
+│       ├── resources_router.py        # AI Coach dialogue endpoint
+│       └── profile_router.py          # User statistics & history endpoints
 │
 ├── frontend/
 │   ├── src/
-│   │   ├── components/        # Reusable React components
-│   │   ├── pages/             # Route-level page components
-│   │   │   ├── Interview.jsx
-│   │   │   ├── Resources.jsx  # AI Coach chat page (NEW)
-│   │   │   ├── ResumeUpload.jsx  # PDF upload page (NEW)
-│   │   │   ├── Login.jsx      # JWT + Google OAuth login
-│   │   │   └── VerifyEmail.jsx   # OTP verification page (NEW)
-│   │   ├── hooks/             # Custom hooks (voice, auth, resume)
-│   │   └── App.jsx            # Router & layout
-│   ├── index.html
-│   └── vite.config.js
+│   │   ├── App.jsx                    # Root application router & layout
+│   │   ├── main.jsx                   # React 19 entry point
+│   │   ├── index.css                  # Global styles & design system tokens
+│   │   │
+│   │   ├── context/
+│   │   │   └── AuthContext.jsx        # Global auth token & user state context
+│   │   │
+│   │   ├── hooks/
+│   │   │   └── useProctoring.js       # face-api.js computer vision proctor hook
+│   │   │
+│   │   ├── components/                # Reusable UI components
+│   │   │   ├── Navbar.jsx             # Navigation bar & status
+│   │   │   ├── Footer.jsx             # Global footer
+│   │   │   └── ProtectedRoute.jsx     # Route authentication guard
+│   │   │
+│   │   └── pages/                     # Full-page route views
+│   │       ├── Home.jsx               # Landing page & feature showcase
+│   │       ├── Interview.jsx          # Live interview chamber with voice & video
+│   │       ├── Feedback.jsx           # Comprehensive AI scorecard report
+│   │       ├── Dsapractice.jsx        # LeetCode-style algorithm practice editor
+│   │       ├── Resources.jsx          # AI Coach chat interface
+│   │       ├── Profile.jsx            # Performance analytics & past sessions
+│   │       ├── History.jsx            # Detailed interview review logs
+│   │       ├── Login.jsx              # Credentials & Google OAuth login
+│   │       ├── Register.jsx           # User registration
+│   │       └── VerifyEmail.jsx        # OTP email verification
+│   │
+│   ├── package.json                   # React 19 & Vite dependencies
+│   └── vite.config.js                 # Vite bundler configuration
 │
 └── README.md
 ```
 
 ---
 
-## 🗄️ Database Schema
+## 🗄️ Database Architecture
+
+The persistence model is managed via SQLAlchemy 2.0 with PostgreSQL, featuring automated index optimization and cascade deletions:
 
 ```
-USERS
-  id, username, email, password_hash
-  oauth_provider (google | null)   ← NEW
-  oauth_id                         ← NEW
-  is_verified (bool)               ← NEW
-  verification_token               ← NEW
-  created_at, role
-
-RESUMES                            ← NEW TABLE
-  id, user_id (FK → USERS)
-  file_path, extracted_text
-  skills_json
-  uploaded_at
-
-SESSIONS
-  id, user_id (FK → USERS)
-  resume_id (FK → RESUMES)         ← NEW
-  mode, status
-  started_at, ended_at
-
-HISTORY
-  id, session_id (FK → SESSIONS)
-  question, answer
-  turn_index, timestamp
-
-SCORES
-  id, session_id (FK → SESSIONS)
-  communication, confidence
-  technical, grammar, overall
-
-DSA_RESULTS
-  id, user_id (FK → USERS)
-  level, language
-  score (out of 10)
-  submitted_at
+users
+  ├── id (PK, Integer)
+  ├── name (VARCHAR)
+  ├── email (VARCHAR, Unique, Indexed)
+  ├── password (VARCHAR, Nullable for OAuth users)
+  ├── bio, college, role_title, avatar_url
+  ├── is_verified (Boolean)
+  ├── verify_token, reset_token, reset_token_expires
+  ├── google_id (VARCHAR, Unique, Nullable)
+  └── created_at (TIMESTAMP)
+        │
+        ├── 1:N ──> interview_sessions
+        │             ├── id (PK, UUID String)
+        │             ├── user_id (FK → users.id, Indexed)
+        │             ├── interview_type ("tech" | "hr")
+        │             ├── company, role, level
+        │             ├── status ("in_progress" | "completed" | "stopped")
+        │             ├── resume_context (JSON)
+        │             ├── history (JSON Array: [{role, content}])
+        │             └── created_at, updated_at
+        │
+        └── 1:N ──> interview_results
+                      ├── id (PK, Integer, Indexed)
+                      ├── user_id (FK → users.id)
+                      ├── communication (0-100)
+                      ├── confidence (0-100)
+                      ├── technical (0-100)
+                      ├── grammar (0-100)
+                      ├── overall (0-100)
+                      ├── summary (TEXT)
+                      └── created_at (TIMESTAMP)
 ```
 
-> **Connection string:** `postgresql+asyncpg://user:pass@host:5432/mockhire`
-> Migrations managed via **Alembic** — run `alembic upgrade head` after any model changes.
+> **Connection Strategy**: Uses `create_engine` with `pool_pre_ping=True`, `pool_size=5`, `max_overflow=10`, and `pool_recycle=300` to prevent stale socket terminations on managed databases like Supabase or Neon.
 
 ---
 
-## 🧠 Engineering Notes
+## 🧠 Software Engineering & Design Patterns
 
-Non-obvious problems solved during development:
+### 1. SOLID Principles Implementation
+- **Single Responsibility Principle (SRP)**: Handlers, services, repositories, and models are strictly isolated. `main.py` is an application factory only.
+- **Open/Closed Principle (OCP)**: Adding new interview archetypes (e.g., `SystemDesignAgent`) or AI providers (e.g., `OpenAILLMClient`) requires zero modifications to existing classes.
+- **Liskov Substitution Principle (LSP)**: `TechnicalInterviewAgent` and `HRInterviewAgent` seamlessly fulfill `BaseInterviewAgent`. Any client expects identical behavior.
+- **Interface Segregation Principle (ISP)**: Repositories and LLM clients expose tight, single-purpose interfaces without bloated dependencies.
+- **Dependency Inversion Principle (DIP)**: Services depend on abstract repositories and base LLM clients injected at runtime rather than concrete implementations.
 
-- **Shared agent state bug** — Two separate `InterviewAgent` instances were being created per request, causing feedback to generate against an empty conversation history. Fixed by enforcing a single shared instance per session.
-
-- **LLaMA JSON inconsistency** — LLaMA 3.1 sometimes returns scores as `"7/10"` strings or wraps JSON in markdown fences. Built a custom parser that handles all known output formats robustly, with server-side type coercion as a final safety net.
-
-- **Session isolation** — Added a `/interview/start` endpoint that explicitly clears conversation history, ensuring scores always reflect the *current* interview only — never a previous session.
-
-- **Prompt engineering for fair scoring** — Engineered explicit scoring rubrics in the system prompt to prevent the model from giving inflated scores for low-effort answers. A server-side score cap acts as a final guard.
-
-- **PostgreSQL migration** — SQLite's single-writer lock blocked concurrent sessions and lacked connection pooling for production loads. Migrated to PostgreSQL via the `asyncpg` driver with zero data loss using Alembic migration scripts. Added the `RESUMES` table and all new foreign keys in the same migration.
-
-- **OAuth + email verification unified** — Supporting Google OAuth and password-based login with a single session model required unifying two identity flows. Both paths now issue the same JWT payload; the `oauth_provider` column on USERS tracks the origin, and `is_verified` gates access to interviews regardless of login method.
-
-- **Resume context injection** — Injecting a full PDF's text into every prompt risked blowing token limits and adding latency. PyMuPDF extracts the raw text; LLaMA then summarises it to a compact `skills_json` (≤200 tokens). Only the JSON is injected into the system prompt — minimal overhead, maximum relevance.
+### 2. Applied Design Patterns
+- **Repository Pattern**: All database queries are encapsulated within `UserRepository`, `SessionRepository`, and `InterviewRepository`.
+- **Strategy Pattern**: The interview engine selects between technical and behavioral strategies dynamically based on user setup.
+- **Resilient Decorator Pattern**: `ResilientLLMClient` wraps primary LLMs (Groq) and catches timeouts or rate limits to transparently divert calls to secondary providers (Google Gemini) without dropping candidate requests.
+- **Factory Pattern**: Centralized `AgentFactory` and `LLMFactory` decouple instantiation logic from consumer workflows.
+- **Chain of Responsibility**: `InjectionGuard` filters incoming responses through rule-based sanity checks before LLM token consumption.
 
 ---
 
-## 🗺️ User Flow
+## 🗺️ Candidate Journey & User Flow
 
 ```
-Login / Google OAuth
-        ↓
-Email OTP Verification (new accounts)
-        ↓
-Upload PDF Resume (optional — enhances question relevance)
-        ↓
-Select Interview Mode (Technical / HR)
-        ↓
-AI asks resume-tailored question via SpeechSynthesis
-        ↓
-You answer verbally via SpeechRecognition
-        ↓
-LLaMA generates context-aware follow-up  ←── loops until session ends
-        ↓
-AI generates 5-metric scorecard → saved to PostgreSQL
-        ↓
-[Anytime] Resources Tab → AI Coach (LLaMA 3.1) for on-demand guidance
+[ Candidate Enters Platform ]
+             │
+             ▼
+[ Authentication ] ──(Google OAuth 2.0 or Email OTP Login)
+             │
+             ▼
+[ Setup Interview Chamber ]
+  ├── 1. Select Interview Type (Technical / HR)
+  ├── 2. Configure Company, Role, & Experience Level
+  └── 3. Upload Resume (PyPDF generates skill context)
+             │
+             ▼
+[ Live Interactive Interview ]
+  ├── Camera stream activated ──> face-api.js monitors attention & multi-face
+  ├── AI speaks question ───────> Coqui XTTS-v2 / SpeechSynthesis
+  ├── Candidate speaks answer ──> Web Speech API captures transcript
+  └── LLM completes follow-up ──> Groq (Qwen 3.8) with Gemini fallback
+             │
+      (Loop 5-7 turns)
+             │
+             ▼
+[ Session Completion & Analytics ]
+  ├── Transcript submitted to feedback pipeline
+  ├── 5-dimension scorecard calculated
+  └── Stored in PostgreSQL & rendered on Candidate Profile
+             │
+             ▼
+[ Continued Preparation (Anytime) ]
+  ├── DSA Practice Module (Interactive coding sandbox)
+  └── AI Coach / Resources (STAR prep & negotiation strategies)
 ```
 
 ---
 
 <div align="center">
 
-**⭐ If MockHire AI helped you prep smarter, give it a star.**
+**⭐ If MockHire AI helped you prepare for your dream role, please star the repository!**
 
-*Built by [Anurag Dubey](https://portfolio-iamanu26.vercel.app/)*
+Built with ❤️ by [Anurag Dubey](https://portfolio-iamanu26.vercel.app/)
 
 </div>
