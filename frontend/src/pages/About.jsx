@@ -4,23 +4,23 @@ import { AuthContext } from "../context/AuthContext";
 import './About.css';
 
 const CAPS = [
-  { icon: "🤖", title: "Intelligent Interviewer", desc: "Powered by a fine-tuned LLaMA model, our AI conducts dynamic, context-aware interviews. It listens to your answers, understands the depth of your response, and probes further — exactly like a seasoned technical recruiter would." },
-  { icon: "🎙️", title: "Voice-First Experience", desc: "Built on the Web Speech API with advanced Text-to-Speech synthesis, MockHire AI enables fully spoken interviews. No typing, no clicking — just you, your voice, and a realistic interview environment." },
-  { icon: "📊", title: "Detailed Performance Report", desc: "Every session ends with a rich evaluation: technical accuracy scores, sentiment analysis, communication clarity ratings, and a list of specific improvement areas tailored to your responses." },
-  { icon: "🔄", title: "Adaptive Difficulty Engine", desc: "The system continuously adjusts question complexity based on your performance. Strong answers unlock harder challenges. Weaker responses trigger supportive, scaffolded follow-ups to help you grow." },
-  { icon: "🛡️", title: "Zero-Risk Practice Environment", desc: "Remove the anxiety of real interviews entirely. Mistakes are learning opportunities here — not career setbacks. Practice as many times as needed with no consequences, only progress." },
-  { icon: "⚙️", title: "Dual Interview Modes", desc: "Choose between a rigorous Technical round (data structures, system design, algorithms) or a Human Resources round (behavioural, situational, culture fit). Both are fully voice-enabled and AI-evaluated." },
+  { icon: "🤖", title: "Dual-Engine AI Interviewer", desc: "Powered by a resilient dual-engine architecture (Groq Qwen 3.8 & Google Gemini), our dynamic strategy agents conduct context-aware interviews tailored to your exact role, target company, and uploaded resume." },
+  { icon: "🎙️", title: "Neural Voice & Speech", desc: "Integrated with HuggingFace Coqui XTTS-v2 neural voice synthesis and native Web Speech APIs for hands-free, hyper-realistic verbal dialogue. AI speaks questions naturally; you respond out loud." },
+  { icon: "🛡️", title: "Client-Side Vision Proctoring", desc: "Built-in computer vision via face-api.js tracks camera presence, detects multiple faces or head turns, and flags tab switches in real time — providing authentic proctored exam readiness." },
+  { icon: "📄", title: "Resume-Aware Tailoring", desc: "Upload your PDF resume. Our PyPDF and LLM extraction pipeline distills your skill vectors and past projects, injecting customized context directly into the interview question flow." },
+  { icon: "📊", title: "Multi-Metric Feedback", desc: "Every session concludes with a 5-dimension scorecard across Technical Skills, Communication, Confidence, Grammar, and Overall Readiness, persisted to your PostgreSQL profile." },
+  { icon: "⚙️", title: "Dual Interview Modes & DSA", desc: "Choose between Technical rounds (DSA, architecture, coding review) or Human Resources rounds (behavioural, STAR method, culture fit). Practice anytime with zero risk." },
 ];
 
 const TECH = [
-  { name: "LLaMA 3", role: "Core LLM", pct: 95 },
-  { name: "FastAPI", role: "Backend API", pct: 90 },
-  { name: "React", role: "Frontend UI", pct: 92 },
-  { name: "Web Speech API", role: "Voice Engine", pct: 88 },
-  { name: "Python", role: "AI Pipeline", pct: 94 },
-  { name: "JWT Auth", role: "Security Layer", pct: 85 },
-  { name: "SQLite / ORM", role: "Data Storage", pct: 80 },
-  { name: "Vite", role: "Build Tool", pct: 87 },
+  { name: "Groq (Qwen 3.8)", role: "Primary LLM", pct: 96 },
+  { name: "Google Gemini", role: "LLM Failover", pct: 92 },
+  { name: "FastAPI", role: "Backend API", pct: 95 },
+  { name: "React 19 & Vite", role: "Frontend UI", pct: 94 },
+  { name: "Coqui XTTS-v2", role: "Neural Speech", pct: 90 },
+  { name: "PostgreSQL", role: "Persistence (SQLAlchemy)", pct: 93 },
+  { name: "face-api.js", role: "Vision Proctoring", pct: 88 },
+  { name: "OAuth 2.0 & JWT", role: "Security Layer", pct: 91 },
 ];
 
 const VALUES = [
@@ -31,9 +31,9 @@ const VALUES = [
 ];
 
 const TEAM = [
-  { avatar: "👨‍💻", name: "AI Engineering", role: "LLM & Inference", bio: "Responsible for fine-tuning the LLaMA model on interview-specific datasets, optimising inference latency, and building the adaptive question generation pipeline." },
+  { avatar: "👨‍💻", name: "AI Engineering", role: "LLM & Inference", bio: "Architected the dual-engine LLM failover system (Groq & Gemini), prompt injection guardrails, resume skill vectorization, and adaptive interview strategy agents." },
   { avatar: "🎨", name: "Product & Design", role: "UX & Frontend", bio: "Crafted the voice-first interaction model, designed every screen with accessibility in mind, and built the React frontend that makes complex AI feel effortless." },
-  { avatar: "⚙️", name: "Backend Systems", role: "API & Infrastructure", bio: "Architected the FastAPI backend, JWT authentication system, session management layer, and the real-time feedback scoring engine that powers every report." },
+  { avatar: "⚙️", name: "Backend Systems", role: "API & Infrastructure", bio: "Engineered the layered FastAPI backend, repository pattern, PostgreSQL connection pooling, and automated scoring pipelines that power every session." },
 ];
 
 // ── Smart CTA button — goes to /interview if logged in, else /login ──
@@ -122,7 +122,7 @@ export default function About() {
           <div className="ab-story-body">
             <p>MockHire AI began as a personal frustration. Too many brilliant engineers were failing interviews — not because they lacked knowledge, but because they had <strong>never practised under realistic conditions.</strong> Traditional mock interviews required scheduling, money, and access to the right network. Most candidates had none of these.</p>
             <p>We set out to build something different: a system that would be available at <strong>2am the night before your interview</strong>, ask you the exact type of questions a real recruiter would, and give you honest, data-driven feedback the moment you finished speaking. No scheduling. No cost. No judgment.</p>
-            <p>Today, MockHire AI serves thousands of candidates across technical and HR interview preparation. Our LLaMA-powered engine has processed over twelve thousand interview sessions, and our adaptive difficulty system ensures that <strong>every session is a meaningful challenge</strong> — regardless of where you start.</p>
+            <p>Today, MockHire AI serves thousands of candidates across technical and HR interview preparation. Our dual-engine AI platform has processed over twelve thousand interview sessions, and our adaptive difficulty system ensures that <strong>every session is a meaningful challenge</strong> — regardless of where you start.</p>
           </div>
         </section>
 

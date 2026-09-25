@@ -87,9 +87,9 @@ function Login() {
 
           <div className="ll-features">
             {[
-              { icon: "🤖", title: "LLaMA-Powered Questions",    desc: "Adaptive AI that responds to your answers in real time." },
-              { icon: "🎙️", title: "Full Voice Interview",        desc: "Speak naturally — no typing, no clicking, just you." },
-              { icon: "📊", title: "Instant Performance Report",  desc: "Detailed feedback the moment your session ends." },
+              { icon: "🤖", title: "Adaptive AI Strategy Agents", desc: "Dual-engine AI that adapts to your target role, company, and resume in real time." },
+              { icon: "🎙️", title: "Neural Voice & Proctoring",    desc: "Spoken dialogue with Coqui XTTS-v2 audio and client-side vision tracking." },
+              { icon: "📊", title: "Comprehensive AI Scorecard",  desc: "5-dimension evaluation metrics persisted to your profile." },
             ].map((f, i) => (
               <div className="ll-feature" key={i}>
                 <span className="ll-feature-icon">{f.icon}</span>

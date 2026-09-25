@@ -8,45 +8,61 @@ const SERVICES = [
     icon: "🤝",
     title: "HR Interview Simulation",
     tag: "Behavioural",
-    desc: "Practice real-world HR scenarios — from culture-fit questions to situational judgement tests. Our LLaMA model adapts to your tone, probes your reasoning, and pushes back like a real recruiter.",
-    bullets: ["Behavioural question banks", "Situational judgement rounds", "Tone & confidence analysis"],
+    desc: "Practice real-world HR scenarios — from culture-fit questions to situational judgement tests. Our conversational HR AI agents adapt to your tone, probe behavioral depth, and challenge your responses.",
+    bullets: ["STAR method coaching", "Situational judgement rounds", "Tone & confidence analysis"],
   },
   {
     num: "02",
     icon: "⚙️",
     title: "Technical Interview Simulation",
     tag: "Engineering",
-    desc: "Deep-dive into data structures, algorithms, system design, and language-specific concepts. Questions scale in difficulty based on your answers — no hand-holding, no shortcuts.",
-    bullets: ["DSA & algorithm rounds", "System design questions", "Adaptive difficulty engine"],
+    desc: "Deep-dive into data structures, algorithms, system design, and language-specific concepts. Questions scale in difficulty dynamically based on your answers and target role.",
+    bullets: ["Role & company-specific targeting", "System design & architecture", "Adaptive difficulty engine"],
   },
   {
     num: "03",
-    icon: "🔄",
-    title: "Real-Time Q&A Interaction",
-    tag: "Live AI",
-    desc: "Every session is a live dialogue. Speak your answer, and the AI immediately processes your response and fires back the next question — exactly like a real interview feels under the clock.",
-    bullets: ["Sub-second AI response time", "Context-aware follow-ups", "Full voice-to-voice flow"],
+    icon: "🎙️",
+    title: "Neural Voice & Speech Flow",
+    tag: "Hands-Free",
+    desc: "Every session is a live spoken dialogue. Hear questions read aloud via HuggingFace Coqui XTTS-v2 neural speech synthesis and respond verbally with sub-second processing.",
+    bullets: ["Coqui XTTS-v2 neural voice", "Browser Web Speech transcription", "Full vocal conversational flow"],
   },
   {
     num: "04",
-    icon: "🎙️",
-    title: "Speaking Practice",
-    tag: "Confidence",
-    desc: "Master the art of verbal communication under pressure. Our system analyses your pacing, filler word usage, clarity, and articulation — helping you sound as good as you think.",
-    bullets: ["Pacing & clarity scoring", "Filler word detection", "Articulation feedback"],
+    icon: "📄",
+    title: "Resume-Aware Tailoring",
+    tag: "Personalized",
+    desc: "Upload your PDF resume to have our AI extract your specific skills, projects, and work history. Opening and follow-up questions directly probe your actual background.",
+    bullets: ["PyPDF extraction pipeline", "Skill vector distillation", "Project-specific question probes"],
   },
   {
     num: "05",
+    icon: "💻",
+    title: "DSA Coding Practice Arena",
+    tag: "Algorithms",
+    desc: "Solve Easy, Medium, and Hard LeetCode-style algorithm problems across Python, C++, Java, and JavaScript with automated AI reviews on correctness, time, and space complexity.",
+    bullets: ["Multi-language editor", "Time & space complexity review", "Score out of 10 with hints"],
+  },
+  {
+    num: "06",
+    icon: "🛡️",
+    title: "Browser Computer Vision Proctoring",
+    tag: "Integrity",
+    desc: "Client-side computer vision (face-api.js) tracks head orientation, multiple faces, and tab switches without streaming your video to external servers — ensuring authentic exam simulation.",
+    bullets: ["Looking-away detection", "Multi-face presence alerts", "Tab-switch integrity logging"],
+  },
+  {
+    num: "07",
     icon: "📊",
-    title: "Feedback & Performance Analysis",
+    title: "Multi-Metric Performance Scorecard",
     tag: "Insights",
-    desc: "Every session ends with a full performance report. Technical accuracy, communication quality, confidence metrics, and a ranked list of improvement areas — all generated instantly.",
-    bullets: ["Multi-dimensional scoring", "Improvement roadmap", "Session history tracking"],
+    desc: "Conclude each session with an instant 5-dimension scorecard across Communication, Confidence, Technical Skills, Grammar, and Overall Performance, stored permanently in PostgreSQL.",
+    bullets: ["5-dimension rubric", "Qualitative feedback summary", "Persistent historical analytics"],
   },
 ];
 
 const STATS = [
-  { num: "5",    label: "Core Services"    },
+  { num: "7",    label: "Core Modules"     },
   { num: "12K+", label: "Sessions Run"     },
   { num: "98%",  label: "Accuracy Rate"    },
   { num: "Free", label: "Always"           },
@@ -69,7 +85,7 @@ export default function Services() {
           What We Offer
         </div>
         <h1>
-          <span className="svc-outline">Five Ways</span><br />
+          <span className="svc-outline">Seven Ways</span><br />
           <span className="svc-white">We Make You</span><br />
           <span className="svc-acid">Interview-Ready.</span>
         </h1>

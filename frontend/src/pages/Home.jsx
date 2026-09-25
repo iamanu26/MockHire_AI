@@ -4,10 +4,10 @@ import { AuthContext } from "../context/AuthContext";
 import './Home.css';
 
 const TICKER_ITEMS = [
-  "Voice Analysis", "Real-Time Feedback", "LLaMA Intelligence",
-  "Technical Rounds", "HR Simulation", "Confidence Scoring",
-  "Voice Analysis", "Real-Time Feedback", "LLaMA Intelligence",
-  "Technical Rounds", "HR Simulation", "Confidence Scoring",
+  "Voice Analysis", "Real-Time Feedback", "Dual-Engine AI (Groq + Gemini)",
+  "Technical & HR", "Browser Proctoring", "Resume-Aware Tailoring", "DSA Practice Arena",
+  "Voice Analysis", "Real-Time Feedback", "Dual-Engine AI (Groq + Gemini)",
+  "Technical & HR", "Browser Proctoring", "Resume-Aware Tailoring", "DSA Practice Arena",
 ];
 
 
@@ -47,9 +47,9 @@ export default function Home() {
           </h1>
 
           <p className="subtitle">
-            Step into a high-fidelity interview environment powered by
-            LLaMA intelligence. Refine your voice, master your presence,
-            and conquer the technical stage.
+            Step into a high-fidelity interview chamber powered by resilient
+            dual-engine AI (Groq & Gemini) and real-time browser proctoring.
+            Refine your voice, master your presence, and conquer your next technical interview.
           </p>
 
           <div className="cta-row">
@@ -96,8 +96,9 @@ export default function Home() {
                 <div className="t-dot" style={{ background: "#4ade80" }} />
               </div>
               <div className="terminal-line"><span className="cmd">$</span> init_session --mode=tech</div>
-              <div className="terminal-line"><span className="ok">✓</span> LLaMA model loaded</div>
-              <div className="terminal-line"><span className="ok">✓</span> Voice engine ready</div>
+              <div className="terminal-line"><span className="ok">✓</span> AI Engine loaded (Groq + Gemini)</div>
+              <div className="terminal-line"><span className="ok">✓</span> Vision proctoring active</div>
+              <div className="terminal-line"><span className="ok">✓</span> Neural voice ready</div>
               <div className="terminal-line"><span className="cmd">$</span> start<span className="cursor" /></div>
             </div>
 
@@ -123,9 +124,9 @@ export default function Home() {
 
       <section className="features">
         {[
-          { icon: "🎙️", title: "Voice Intelligence", desc: "Real-time transcription and analysis of your speech patterns, pacing, and clarity." },
-          { icon: "🧠", title: "Adaptive Questions", desc: "LLaMA dynamically adjusts question difficulty based on your previous responses." },
-          { icon: "📊", title: "Instant Feedback", desc: "Detailed scoring on communication, technical depth, and confidence after every session." },
+          { icon: "🎙️", title: "Voice & Speech Intelligence", desc: "Real-time speech transcription with Coqui XTTS-v2 neural audio synthesis for fully vocal mock rounds." },
+          { icon: "🧠", title: "Adaptive Strategy Agents", desc: "Modular AI agents dynamically tailor Technical & HR questions to your target company, role, and resume." },
+          { icon: "🛡️", title: "Proctoring & Scorecards", desc: "Client-side computer vision checks with instant multi-metric feedback across Communication, Technical Depth, and Confidence." },
         ].map((f, i) => (
           <div className="feat" key={i}>
             <div className="feat-num">0{i + 1}</div>

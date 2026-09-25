@@ -69,6 +69,7 @@ function Navbar() {
           {token ? (
             <>
               <Link style={styles.link} to="/interview">Interview</Link>
+              <Link style={styles.link} to="/dsa-practice">DSA Practice</Link>
 
               {/* ── Avatar + Dropdown ── */}
               <div ref={dropdownRef} style={{ position: "relative" }}>
@@ -112,6 +113,16 @@ function Navbar() {
                       onClick={() => { setOpen(false); navigate("/history"); }}
                     >
                       📋 Interview History
+                    </button>
+
+                    {/* DSA Practice */}
+                    <button
+                      style={styles.dropdownItem}
+                      onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.06)"}
+                      onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+                      onClick={() => { setOpen(false); navigate("/dsa-practice"); }}
+                    >
+                      💻 DSA Practice
                     </button>
 
                     {/* Start Interview */}

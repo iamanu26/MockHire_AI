@@ -7,12 +7,12 @@ import './How_it_work.css';
 
 
 const STEPS = [
-  { icon: "🎙️", title: "Voice Capture", desc: "Browser-native speech recognition captures every word with precision, enabling fluent real-time transcription." },
-  { icon: "🧠", title: "LLaMA Processing", desc: "Your answer is analyzed by a fine-tuned LLaMA model that understands technical depth and communication style." },
-  { icon: "🔄", title: "Dynamic Questions", desc: "The next question is generated on-the-fly based on your response — harder if you nailed it, supportive if you need it." },
-  { icon: "📊", title: "Confidence Scoring", desc: "Each response is scored across clarity, completeness, and confidence using a multi-dimensional rubric." },
-  { icon: "🗣️", title: "AI Voice Feedback", desc: "Questions are delivered via synthesized speech — a fully immersive, real interview environment." },
-  { icon: "📋", title: "Session Report", desc: "At the end, receive a detailed breakdown with strengths, gaps, and improvement suggestions." },
+  { icon: "🎙️", title: "Voice Capture", desc: "Browser-native speech recognition captures your spoken response with precision, converting your voice to text seamlessly." },
+  { icon: "🧠", title: "Dual-Engine AI Reasoning", desc: "Your answer is processed by high-speed Groq LLM (Qwen 3.8) with Gemini fallback, assessing technical depth and clarity." },
+  { icon: "🔄", title: "Adaptive Strategy Agents", desc: "Next questions are generated dynamically based on your role, target company, and uploaded resume background." },
+  { icon: "🛡️", title: "Browser Vision Proctoring", desc: "Client-side computer vision (face-api.js) tracks attention, flags head-turns, and detects tab switches in real time." },
+  { icon: "🗣️", title: "Neural Voice Delivery", desc: "Questions are synthesized with Coqui XTTS-v2 neural audio and Web Speech APIs for a realistic vocal experience." },
+  { icon: "📋", title: "Holistic Scorecard", desc: "Receive a 5-dimension scorecard across Communication, Technical Depth, Confidence, and Grammar, saved to PostgreSQL." },
 ];
 
 const METRICS = [
@@ -23,10 +23,11 @@ const METRICS = [
 ];
 
 const FLOW = [
-  { icon: "🔐", step: "01", title: "Login & Setup", desc: "Choose Technical or HR mode and begin your session." },
-  { icon: "🎤", step: "02", title: "Speak Your Answer", desc: "Hit the mic button and respond naturally." },
-  { icon: "⚡", step: "03", title: "AI Evaluates", desc: "LLaMA scores your answer and generates the next question." },
-  { icon: "🏆", step: "04", title: "Get Your Report", desc: "End the session and receive your full performance report." },
+  { icon: "🔐", step: "01", title: "Setup & Resume Upload", desc: "Configure role, seniority, and target company; upload your PDF resume for personalized questions." },
+  { icon: "🛡️", step: "02", title: "Proctoring & Camera Check", desc: "Enable camera proctoring to simulate authentic exam conditions with live attention tracking." },
+  { icon: "🎤", step: "03", title: "Speak Your Answer", desc: "Listen to the AI's spoken question and respond naturally through your microphone." },
+  { icon: "⚡", step: "04", title: "AI Evaluates & Adapts", desc: "Dual-engine AI scores your response in real time and synthesizes targeted follow-ups." },
+  { icon: "🏆", step: "05", title: "Review Your Scorecard", desc: "Receive your comprehensive report with actionable feedback, persisted to your profile." },
 ];
 
 export default function How_it_works() {

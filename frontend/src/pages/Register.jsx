@@ -113,9 +113,9 @@ export default function Register() {
 
           <div className="rl-steps">
             {[
-              { num: "01", title: "Create Your Account", desc: "Register in seconds — no credit card required." },
-              { num: "02", title: "Choose Your Mode",    desc: "Pick Technical or HR interview preparation." },
-              { num: "03", title: "Start Practising",    desc: "Speak your answers and receive instant AI feedback." },
+              { num: "01", title: "Create Your Account", desc: "Sign up via Google OAuth 2.0 or verified email." },
+              { num: "02", title: "Target & Personalize", desc: "Select role, company tier, and upload your PDF resume." },
+              { num: "03", title: "Vocal Interview & DSA", desc: "Practice real-time spoken interviews with browser proctoring." },
             ].map((s, i) => (
               <div className="rl-step" key={i}>
                 <div className="rl-step-num">{s.num}</div>
@@ -130,7 +130,7 @@ export default function Register() {
           <div className="rl-stats">
             {[
               { num: "Free", label: "Always" },
-              { num: "2",    label: "Modes"   },
+              { num: "v2.0", label: "Dual AI" },
               { num: "4.9★", label: "Rating"  },
             ].map((s, i) => (
               <div key={i}>
