@@ -27,7 +27,7 @@ The platform is architected around **SOLID principles** and proven design patter
 
 ## ✨ Features at a Glance
 
-| # | Feature | What It Does |
+| # | Feature | What It Does  |
 |---|---------|-------------|
 | 🧠 | **AI Interview Simulation** | Conducts Technical & HR interviews customized to target role, company type, and seniority level using modular strategy agents. |
 | 🎙️ | **Dual-Engine Voice I/O** | Real-time speech synthesis using HuggingFace Coqui XTTS-v2 neural voice with browser Web Speech API fallback for hands-free audio. |
@@ -279,7 +279,7 @@ A 24/7 dedicated career and interview preparation assistant accessible from the 
 [![Web Speech API](https://img.shields.io/badge/Web_Speech_API-Native_Browser-34A853?style=flat-square)](#)
 [![MediaDevices](https://img.shields.io/badge/MediaDevices_API-WebRTC_Streams-FF6C37?style=flat-square)](#)
 
-### Backend Ecosystem
+### Backend Ecosystem 
 
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.135-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=flat-square&logo=python&logoColor=white)](https://python.org)
